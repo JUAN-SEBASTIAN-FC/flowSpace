@@ -1,0 +1,229 @@
+import { useApp } from '../../context/AppContext';
+import StatCard from '../../components/ui/StatCard';
+import Badge from '../../components/ui/Badge';
+import { PageHeader } from '../../components/ui/PageComponents';
+import {
+  DollarSign, Calendar, Users, Package, TrendingUp,
+  Clock, AlertTriangle, Plus, ArrowRight, MessageCircle
+} from 'lucide-react';
+import { Link } from 'react-router-dom';
+
+const upcomingAppointments = [
+  { id: 1, client: 'Laura Martínez', service: 'Corte + Peinado', time: '10:30', status: 'confirmed' },
+  { id: 2, client: 'Carlos Ruiz', service: 'Coloración', time: '11:00', status: 'confirmed' },
+  { id: 3, client: 'Ana López', service: 'Manicura', time: '12:15', status: 'pending' },
+  { id: 4, client: 'Pedro Sánchez', service: 'Barba', time: '14:00', status: 'confirmed' },
+];
+
+const recentClients = [
+  { id: 1, name: 'Sofía García', lastVisit: 'Hoy', visits: 12 },
+  { id: 2, name: 'Martín Díaz', lastVisit: 'Ayer', visits: 5 },
+  { id: 3, name: 'Valentina Ríos', lastVisit: 'Hace 3 días', visits: 28 },
+];
+
+const inventoryAlerts = [
+  { id: 1, product: 'Shampoo Profesional', stock: 2, min: 5, category: 'Productos' },
+  { id: 2, product: 'Tinte Castaño 5.0', stock: 1, min: 3, category: 'Coloración' },
+  { id: 3, product: 'Guantes Descartables', stock: 0, min: 10, category: 'Insumos' },
+];
+
+export default function Dashboard() {
+  const { business } = useApp();
+
+  return (
+    <div>
+      <PageHeader
+        title={`Buen día, ${business?.name || 'Style Studio'} 👋`}
+        subtitle="Resumen de hoy — Sábado 9 de Mayo"
+      >
+        <div className="flex gap-2">
+          <Link to="/appointments" className="btn-primary text-sm flex items-center gap-2">
+            <Plus size={16} /> Nueva cita
+          </Link>
+          <Link to="/billing" className="btn-secondary text-sm flex items-center gap-2">
+            <DollarSign size={16} /> Nueva venta
+          </Link>
+        </div>
+      </PageHeader>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <StatCard
+          title="Ingresos del día"
+          value="$ 48,500"
+          change={12}
+          icon={DollarSign}
+          color="green"
+          subtitle="4 transacciones"
+        />
+        <StatCard
+          title="Citas hoy"
+          value="8"
+          change={0}
+          icon={Calendar}
+          color="primary"
+          subtitle="3 confirmadas, 5 pendientes"
+        />
+        <StatCard
+          title="Clientes nuevos"
+          value="3"
+          change={-5}
+          icon={Users}
+          color="blue"
+          subtitle="este mes: 24"
+        />
+        <StatCard
+          title="Stock bajo"
+          value="3"
+          icon={Package}
+          color="amber"
+          subtitle="Requieren atención"
+        />
+      </div>
+
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Appointments */}
+        <div className="card p-5 lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-semibold text-gray-900 font-display flex items-center gap-2">
+              <Clock size={18} className="text-primary-500" />
+              Próximas citas
+            </h3>
+            <Link to="/appointments" className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
+              Ver agenda <ArrowRight size={14} />
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {upcomingAppointments.map(apt => (
+              <div key={apt.id}
+                className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group cursor-pointer"
+              >
+                <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
+                  <span className="text-sm font-bold text-primary-600">{apt.time}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900">{apt.client}</p>
+                  <p className="text-xs text-gray-500">{apt.service}</p>
+                </div>
+                <Badge variant={apt.status === 'confirmed' ? 'success' : 'warning'}>
+                  {apt.status === 'confirmed' ? 'Confirmada' : 'Pendiente'}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Clients */}
+        <div className="card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-semibold text-gray-900 font-display flex items-center gap-2">
+              <Users size={18} className="text-primary-500" />
+              Clientes recientes
+            </h3>
+            <Link to="/clients" className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
+              Todos <ArrowRight size={14} />
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {recentClients.map(client => (
+              <div key={client.id}
+                className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+              >
+                <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
+                  <span className="text-sm font-semibold text-gray-600">
+                    {client.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900">{client.name}</p>
+                  <p className="text-xs text-gray-500">{client.lastVisit} · {client.visits} visitas</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
+        {/* Inventory Alerts */}
+        <div className="card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-base font-semibold text-gray-900 font-display flex items-center gap-2">
+              <AlertTriangle size={18} className="text-amber-500" />
+              Alertas de inventario
+            </h3>
+            <Link to="/inventory" className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
+              Gestionar <ArrowRight size={14} />
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {inventoryAlerts.map(item => (
+              <div key={item.id}
+                className="flex items-center gap-3 p-3 rounded-xl border border-amber-100 bg-amber-50/50"
+              >
+                <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
+                  <Package size={18} className="text-amber-600" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900">{item.product}</p>
+                  <p className="text-xs text-amber-600 font-medium">
+                    Stock: {item.stock} / Mín: {item.min}
+                  </p>
+                </div>
+                <Badge variant={item.stock === 0 ? 'danger' : 'warning'}>
+                  {item.stock === 0 ? 'Agotado' : 'Crítico'}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="card p-5">
+          <h3 className="text-base font-semibold text-gray-900 font-display mb-4 flex items-center gap-2">
+            <TrendingUp size={18} className="text-primary-500" />
+            Acciones rápidas
+          </h3>
+          <div className="grid grid-cols-2 gap-3">
+            {[
+              { to: '/appointments', icon: Calendar, label: 'Nueva cita', color: 'bg-primary-50 text-primary-600' },
+              { to: '/clients', icon: Users, label: 'Agregar cliente', color: 'bg-blue-50 text-blue-600' },
+              { to: '/billing', icon: DollarSign, label: 'Nueva venta', color: 'bg-green-50 text-green-600' },
+              { to: '/inventory', icon: Package, label: 'Actualizar stock', color: 'bg-amber-50 text-amber-600' },
+            ].map(action => (
+              <Link
+                key={action.label}
+                to={action.to}
+                className="flex flex-col items-center gap-2.5 p-4 rounded-xl border border-gray-100
+                  hover:border-primary-200 hover:bg-primary-50/30 transition-all duration-150 group"
+              >
+                <div className={`p-2.5 rounded-xl ${action.color}`}>
+                  <action.icon size={20} />
+                </div>
+                <span className="text-sm font-medium text-gray-700 group-hover:text-primary-700">
+                  {action.label}
+                </span>
+              </Link>
+            ))}
+          </div>
+
+          {/* WhatsApp Quick Contact */}
+          <div className="mt-4 p-4 rounded-xl bg-green-50 border border-green-100 flex items-center gap-3">
+            <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center shrink-0">
+              <MessageCircle size={20} className="text-white" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-green-800">¿Necesitás ayuda?</p>
+              <p className="text-xs text-green-600">Escribinos por WhatsApp, respondemos al toque</p>
+            </div>
+            <button className="btn-primary text-sm bg-green-600 hover:bg-green-700">
+              Chatear
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
