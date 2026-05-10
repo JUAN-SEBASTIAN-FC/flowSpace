@@ -1,0 +1,445 @@
+Actúa como un Arquitecto de Software Senior, Tech Lead Full Stack, Diseñador UI/UX Senior y Product Manager especializado en aplicaciones SaaS empresariales modernas.
+
+Tu objetivo es ayudarme a desarrollar una plataforma profesional de gestión para negocios (peluquerías, clínicas, gimnasios, consultorios, talleres, restaurantes, etc.) utilizando Vite + React JSX + Node.js.
+
+1. Concepto del producto
+
+Una plataforma de gestión para negocios tipo SaaS, adaptable a diferentes sectores:
+
+Peluquerías
+Clínicas
+Gimnasios
+Consultorios
+Talleres
+Restaurantes
+
+La idea es que el sistema se vea moderno, confiable, fácil de usar y vendible, con una interfaz que permita administrar operaciones diarias desde un solo lugar.
+
+2. Objetivo de la app
+
+Centralizar en una sola plataforma:
+
+Agenda de citas
+Control de clientes
+Inventario
+Facturación
+Recordatorios automáticos
+Reportes visuales
+Integración con WhatsApp
+
+La interfaz debe transmitir:
+
+orden
+profesionalismo
+rapidez
+confianza
+escalabilidad
+3. Tipo de producto
+
+Esto no debe verse como una app genérica, sino como una plataforma modular.
+
+La clave visual es que cada negocio pueda activar o desactivar módulos según su necesidad.
+
+Ejemplo:
+
+Una peluquería usa agenda, clientes, inventario y WhatsApp.
+Una clínica usa agenda, pacientes, facturación y recordatorios.
+Un gimnasio usa membresías, clientes, pagos y reportes.
+4. Requerimientos funcionales
+4.1 Acceso y estructura general
+Inicio de sesión
+Registro de negocio
+Selección de tipo de negocio
+Recuperación de contraseña
+Cierre de sesión
+Cambio de perfil y ajustes
+4.2 Panel principal
+Resumen visual del negocio
+Tarjetas con métricas clave
+Próximas citas
+Clientes recientes
+Alertas de inventario
+Ventas del día
+Recordatorios pendientes
+4.3 Agenda de citas
+Crear cita
+Editar cita
+Cancelar cita
+Reprogramar cita
+Ver agenda por día, semana y mes
+Filtrar por empleado o servicio
+Estados de cita:
+pendiente
+confirmada
+atendida
+cancelada
+no asistió
+4.4 Clientes
+Lista de clientes
+Perfil individual
+Historial de citas
+Historial de compras o servicios
+Notas internas
+Etiquetas o categorías
+Búsqueda rápida
+4.5 Inventario
+Lista de productos o insumos
+Crear, editar y eliminar productos
+Alertas por bajo stock
+Categorías
+Entradas y salidas
+Visualización de existencias
+Productos más usados o más vendidos
+4.6 Facturación
+Crear factura o comprobante
+Asociar cliente y servicio
+Aplicar descuentos
+Ver historial de pagos
+Estados:
+pagado
+pendiente
+parcial
+Resumen de caja o ingresos
+4.7 Recordatorios automáticos
+Diseño de módulo para enviar recordatorios
+Recordatorio de cita
+Recordatorio de pago
+Recordatorio de seguimiento
+Plantillas editables para mensajes
+4.8 WhatsApp integrado
+Botón para contacto rápido
+Enlace directo a conversación
+Plantillas de mensajes
+Acceso desde citas y clientes
+Vista de acciones rápidas
+4.9 Reportes
+Ventas por periodo
+Citas atendidas
+Clientes frecuentes
+Servicios más vendidos
+Inventario consumido
+Ingresos mensuales
+Gráficos y tarjetas visuales
+4.10 Configuración
+Datos del negocio
+Horarios de atención
+Servicios
+Empleados
+Métodos de pago
+Preferencias visuales
+Logos e identidad del negocio
+5. Apartados o módulos necesarios en la interfaz
+Estructura principal de navegación
+Dashboard
+Citas / Agenda
+Clientes
+Inventario
+Facturación
+Recordatorios
+WhatsApp
+Reportes
+Configuración
+Apartados secundarios
+Perfil de usuario
+Notificaciones
+Calendario
+Historial de acciones
+Ayuda / soporte
+6. Flujo de ejecución de la app
+Flujo principal de usuario
+El usuario entra a la plataforma.
+Inicia sesión.
+Ve el dashboard con resumen general.
+Selecciona el módulo que necesita.
+Realiza una acción:
+crear cita
+registrar cliente
+registrar venta
+revisar inventario
+El sistema muestra confirmación visual.
+El usuario vuelve al panel o cambia de módulo.
+Flujo de negocio
+Registro del negocio.
+Configuración inicial.
+Creación de servicios.
+Carga de clientes.
+Activación de agenda.
+Inicio de operación diaria.
+Visualización de reportes.
+Flujo de cita
+Entrar a agenda.
+Crear cita.
+Elegir cliente.
+Elegir servicio.
+Elegir fecha y hora.
+Guardar.
+Mostrar confirmación y resumen.
+Permitir enviar recordatorio por WhatsApp.
+Flujo de factura
+Entrar a facturación.
+Seleccionar cliente.
+Seleccionar servicio o producto.
+Aplicar descuento si corresponde.
+Mostrar total.
+Confirmar pago.
+Registrar resultado visual.
+7. Requerimientos visuales
+
+La plataforma debe verse premium. Para lograrlo:
+
+Estilo general
+Diseño limpio
+Espacios amplios
+Tarjetas con sombra suave
+Bordes redondeados
+Tipografía moderna
+Jerarquía clara
+Iconografía elegante
+Colores sobrios y profesionales
+Paleta recomendada
+Fondo claro o gris muy suave
+Color principal: azul, verde o morado profesional
+Color de énfasis: para botones y estados
+Colores de estado:
+verde: correcto / pagado
+amarillo: pendiente
+rojo: alerta / cancelado
+azul: información
+Componentes visuales
+Sidebar lateral
+Topbar superior
+Cards de métricas
+Tablas limpias
+Modales elegantes
+Formularios bien espaciados
+Botones grandes y claros
+Toasts o alertas discretas
+Skeleton loaders visuales
+Empty states amigables
+8. Estructura recomendada de pantallas
+8.1 Pantalla de login
+Logo
+Nombre de la plataforma
+Campos de acceso
+Botón principal
+Link de recuperación
+Diseño centrado y elegante
+8.2 Pantalla de onboarding
+Selección del tipo de negocio
+Datos básicos del negocio
+Activación de módulos
+Primer recorrido guiado
+8.3 Dashboard
+
+Debe mostrar:
+
+ingresos del día
+citas próximas
+clientes nuevos
+stock bajo
+accesos rápidos
+gráfico de actividad
+8.4 Agenda
+calendario visual
+lista de citas del día
+filtros por estado
+botón de nueva cita
+8.5 Clientes
+buscador
+tabla o cards
+vista de perfil
+historial y notas
+8.6 Inventario
+tabla con stock
+indicadores de alerta
+categorías
+formularios de producto
+8.7 Facturación
+resumen de caja
+facturas recientes
+estado de cobros
+botón de nueva factura
+8.8 Reportes
+gráficos
+tarjetas comparativas
+filtros por fecha
+exportables visuales más adelante
+8.9 Configuración
+datos del negocio
+horarios
+usuarios
+apariencia
+servicios
+preferencias
+9. Flujo visual recomendado por módulo
+Agenda
+
+Vista principal:
+
+calendario
+lista lateral de citas
+estado por color
+botón flotante “Nueva cita”
+Clientes
+
+Vista principal:
+
+buscador superior
+tarjetas o tabla
+botón “Agregar cliente”
+panel lateral con detalles
+Inventario
+
+Vista principal:
+
+resumen de stock
+productos críticos
+tabla ordenada
+filtros por categoría
+Facturación
+
+Vista principal:
+
+resumen del día
+facturas recientes
+estados de pago
+botón de crear factura
+Reportes
+
+Vista principal:
+
+gráficos por periodo
+métricas resumidas
+comparaciones
+tarjetas destacadas
+10. Requerimientos de UX
+Navegación simple
+Menos clics para tareas frecuentes
+Formularios cortos y claros
+Acciones principales visibles
+Confirmación antes de eliminar
+Edición rápida
+Búsqueda permanente
+Filtros accesibles
+Estados vacíos con mensajes útiles
+11. Requerimientos técnicos de interfaz
+
+Aunque no entras al backend todavía, sí conviene dejar definido esto para la parte visual:
+
+Vite para rapidez de desarrollo
+React JSX para componentes reutilizables
+Node.js solo como base futura de integración
+Componentes modulares
+Rutas por módulo
+Estado visual bien organizado
+Layout reusable
+Sistema de temas
+Componentes desacoplados
+12. Estructura de carpetas sugerida
+src/
+  assets/
+  components/
+    layout/
+    ui/
+    forms/
+    tables/
+    charts/
+  pages/
+    auth/
+    dashboard/
+    appointments/
+    clients/
+    inventory/
+    billing/
+    reminders/
+    whatsapp/
+    reports/
+    settings/
+  routes/
+  context/
+  hooks/
+  styles/
+  utils/
+13. Componentes reutilizables necesarios
+Sidebar
+Header
+Card de métricas
+Tabla adaptable
+Formulario base
+Modal
+Botón principal
+Selector de fechas
+Buscador
+Badge de estado
+EmptyState
+Loader
+Gráfico
+Notificación toast
+14. Prioridad de desarrollo por fases
+Fase 1: estructura visual base
+login
+layout general
+sidebar
+dashboard
+Fase 2: módulos base
+clientes
+agenda
+inventario
+Fase 3: operación comercial
+facturación
+recordatorios
+WhatsApp
+Fase 4: análisis
+reportes
+métricas
+ajustes visuales
+15. Alcance mínimo viable (MVP)
+
+Para vender rápido, el MVP debería incluir:
+
+Login
+Dashboard
+Agenda
+Clientes
+Inventario básico
+Facturación básica
+WhatsApp como acción visual
+Reportes simples
+Configuración inicial
+
+Con eso ya tienes una plataforma presentable para clientes.
+
+16. Lo que hace que sea vendible
+
+Esto se vende mejor si la interfaz comunica:
+
+“ahorra tiempo”
+“ordena tu negocio”
+“no pierdas citas”
+“controla tu inventario”
+“ve tus ingresos en un solo lugar”
+“responde más rápido por WhatsApp”
+17. Propuesta de pantallas finales
+
+Te recomiendo construir estas pantallas primero:
+
+Landing o portada comercial
+Login
+Onboarding de negocio
+Dashboard principal
+Agenda
+Clientes
+Inventario
+Facturación
+Reportes
+Configuración
+18. Resultado esperado del sistema
+
+Al final, la app debe verse como un producto SaaS real, no como una demo.
+Debe ser:
+
+clara
+elegante
+modular
+escalable
+lista para vender a distintos tipos de negocio

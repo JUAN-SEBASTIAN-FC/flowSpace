@@ -2,37 +2,71 @@ import { useState } from 'react';
 import { PageHeader } from '../../components/ui/PageComponents';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
+import { useApp } from '../../context/AppContext';
 import {
   Plus, DollarSign, Receipt, TrendingUp, Calendar,
   Search, FileText, CreditCard, Download
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const invoices = [
-  { id: 'FAC-001', client: 'Laura Martínez', service: 'Corte + Peinado', amount: '$ 8,500', date: '09/05/2026', method: 'Efectivo', status: 'paid' },
-  { id: 'FAC-002', client: 'Carlos Ruiz', service: 'Coloración', amount: '$ 15,000', date: '09/05/2026', method: 'Transferencia', status: 'paid' },
-  { id: 'FAC-003', client: 'Ana López', service: 'Manicura', amount: '$ 6,500', date: '09/05/2026', method: 'Tarjeta', status: 'pending' },
-  { id: 'FAC-004', client: 'Pedro Sánchez', service: 'Barba', amount: '$ 4,500', date: '08/05/2026', method: 'Efectivo', status: 'paid' },
-  { id: 'FAC-005', client: 'Sofía García', service: 'Corte + Peinado', amount: '$ 8,500', date: '08/05/2026', method: 'Tarjeta', status: 'partial' },
-];
-
-const dailySummary = {
-  total: '$ 48,500',
-  transactions: 4,
-  pending: 1,
-  cash: '$ 13,000',
-  card: '$ 6,500',
-  transfer: '$ 15,000',
-};
-
 export default function Billing() {
+  const { bills, clients, addBill, setBills } = useApp();
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    clientId: '',
+    service: '',
+    amount: '',
+    date: new Date().toISOString().split('T')[0],
+    method: 'Efectivo',
+    status: 'paid'
+  });
 
-  const filtered = invoices.filter(i =>
-    i.client.toLowerCase().includes(search.toLowerCase()) ||
-    i.id.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = bills.filter(inv => {
+    const client = clients.find(c => c.id === inv.clientId);
+    const clientName = client?.name || 'Desconocido';
+    return clientName.toLowerCase().includes(search.toLowerCase()) ||
+           inv.id.toLowerCase().includes(search.toLowerCase());
+  });
+
+  // Daily Summary calculated from state
+  const today = new Date().toISOString().split('T')[0];
+  const todayBills = bills.filter(b => b.date === today);
+  
+  const dailySummary = {
+    total: todayBills.reduce((acc, b) => acc + (b.total || 0), 0),
+    transactions: todayBills.length,
+    pending: todayBills.filter(b => b.status === 'pending').length,
+    cash: todayBills.filter(b => b.method === 'Efectivo').reduce((acc, b) => acc + (b.total || 0), 0),
+    card: todayBills.filter(b => b.method === 'Tarjeta').reduce((acc, b) => acc + (b.total || 0), 0),
+    transfer: todayBills.filter(b => b.method === 'Transferencia').reduce((acc, b) => acc + (b.total || 0), 0),
+  };
+
+  const handleRegisterPayment = () => {
+    if (!formData.clientId || !formData.amount) {
+      toast.error('Por favor completa el cliente y el monto');
+      return;
+    }
+
+    addBill({
+      ...formData,
+      total: parseFloat(formData.amount),
+      id: `FAC-${Math.floor(1000 + Math.random() * 9000)}`
+    });
+
+    toast.success('Pago registrado exitosamente');
+    setShowModal(false);
+    setFormData({
+      clientId: '',
+      service: '',
+      amount: '',
+      date: new Date().toISOString().split('T')[0],
+      method: 'Efectivo',
+      status: 'paid'
+    });
+  };
 
   return (
     <div>
@@ -51,26 +85,26 @@ export default function Billing() {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
         <div className="card p-4 text-center bg-primary-600 text-white">
           <p className="text-xs text-primary-200">Total del día</p>
-          <p className="text-2xl font-bold font-display mt-1">{dailySummary.total}</p>
+          <p className="text-2xl font-bold font-display mt-1">${dailySummary.total.toLocaleString()}</p>
           <p className="text-xs text-primary-200 mt-1">{dailySummary.transactions} transacciones</p>
         </div>
         <div className="card p-4 text-center">
           <div className="flex justify-center mb-1 text-green-600"><DollarSign size={16} /></div>
           <p className="text-xs text-gray-500">Efectivo</p>
-          <p className="text-lg font-bold text-gray-900">{dailySummary.cash}</p>
+          <p className="text-lg font-bold text-gray-900">${dailySummary.cash.toLocaleString()}</p>
         </div>
         <div className="card p-4 text-center">
           <div className="flex justify-center mb-1 text-blue-600"><CreditCard size={16} /></div>
           <p className="text-xs text-gray-500">Tarjeta</p>
-          <p className="text-lg font-bold text-gray-900">{dailySummary.card}</p>
+          <p className="text-lg font-bold text-gray-900">${dailySummary.card.toLocaleString()}</p>
         </div>
         <div className="card p-4 text-center">
-          <div className="flex justify-center mb-1 text-purple-600"><ArrowDown size={16} /></div>
+          <div className="flex justify-center mb-1 text-purple-600"><Receipt size={16} /></div>
           <p className="text-xs text-gray-500">Transferencia</p>
-          <p className="text-lg font-bold text-gray-900">{dailySummary.transfer}</p>
+          <p className="text-lg font-bold text-gray-900">${dailySummary.transfer.toLocaleString()}</p>
         </div>
         <div className="card p-4 text-center">
-          <div className="flex justify-center mb-1 text-amber-600"><Receipt size={16} /></div>
+          <div className="flex justify-center mb-1 text-amber-600"><TrendingUp size={16} /></div>
           <p className="text-xs text-gray-500">Pendientes</p>
           <p className="text-lg font-bold text-amber-600">{dailySummary.pending}</p>
         </div>
@@ -83,7 +117,7 @@ export default function Billing() {
           value={search}
           onChange={e => setSearch(e.target.value)}
           className="input-field pl-9"
-          placeholder="Buscar factura..."
+          placeholder="Buscar factura o cliente..."
         />
       </div>
 
@@ -102,37 +136,40 @@ export default function Billing() {
             </tr>
           </thead>
           <tbody>
-            {filtered.map(inv => (
-              <tr key={inv.id} className="hover:bg-gray-50/50 transition-colors cursor-pointer">
-                <td className="table-td">
-                  <div className="flex items-center gap-2">
-                    <FileText size={14} className="text-primary-500" />
-                    <span className="font-mono text-xs font-semibold text-primary-600">{inv.id}</span>
-                  </div>
-                </td>
-                <td className="table-td font-medium text-gray-900">{inv.client}</td>
-                <td className="table-td text-sm text-gray-600">{inv.service}</td>
-                <td className="table-td font-bold text-gray-900">{inv.amount}</td>
-                <td className="table-td text-sm text-gray-500">{inv.date}</td>
-                <td className="table-td">
-                  <Badge variant={
-                    inv.method === 'Efectivo' ? 'success' :
-                    inv.method === 'Tarjeta' ? 'info' : 'primary'
-                  }>
-                    {inv.method}
-                  </Badge>
-                </td>
-                <td className="table-td">
-                  <Badge variant={
-                    inv.status === 'paid' ? 'success' :
-                    inv.status === 'pending' ? 'warning' : 'info'
-                  }>
-                    {inv.status === 'paid' ? 'Pagado' :
-                     inv.status === 'pending' ? 'Pendiente' : 'Parcial'}
-                  </Badge>
-                </td>
-              </tr>
-            ))}
+            {filtered.map(inv => {
+              const client = clients.find(c => c.id === inv.clientId);
+              return (
+                <tr key={inv.id} className="hover:bg-gray-50/50 transition-colors cursor-pointer">
+                  <td className="table-td">
+                    <div className="flex items-center gap-2">
+                      <FileText size={14} className="text-primary-500" />
+                      <span className="font-mono text-xs font-semibold text-primary-600">{inv.id}</span>
+                    </div>
+                  </td>
+                  <td className="table-td font-medium text-gray-900">{client?.name || 'Cliente eliminado'}</td>
+                  <td className="table-td text-sm text-gray-600">{inv.service}</td>
+                  <td className="table-td font-bold text-gray-900">${inv.total?.toLocaleString()}</td>
+                  <td className="table-td text-sm text-gray-500">{inv.date}</td>
+                  <td className="table-td">
+                    <Badge variant={
+                      inv.method === 'Efectivo' ? 'success' :
+                      inv.method === 'Tarjeta' ? 'info' : 'primary'
+                    }>
+                      {inv.method}
+                    </Badge>
+                  </td>
+                  <td className="table-td">
+                    <Badge variant={
+                      inv.status === 'paid' ? 'success' :
+                      inv.status === 'pending' ? 'warning' : 'info'
+                    }>
+                      {inv.status === 'paid' ? 'Pagado' :
+                       inv.status === 'pending' ? 'Pendiente' : 'Parcial'}
+                    </Badge>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -145,52 +182,83 @@ export default function Billing() {
         footer={
           <>
             <button onClick={() => setShowModal(false)} className="btn-secondary">Cancelar</button>
-            <button
-              onClick={() => { setShowModal(false); toast.success('Factura creada'); }}
-              className="btn-primary"
-            >
-              Registrar pago
-            </button>
+            <button onClick={handleRegisterPayment} className="btn-primary">Registrar pago</button>
           </>
         }
       >
         <div className="space-y-4">
           <div>
             <label className="input-label">Cliente</label>
-            <select className="input-field">
-              <option>Seleccionar cliente...</option>
-              <option>Laura Martínez</option>
-              <option>Carlos Ruiz</option>
-              <option>Ana López</option>
+            <select 
+              className="input-field" 
+              value={formData.clientId}
+              onChange={e => setFormData({...formData, clientId: e.target.value})}
+            >
+              <option value="">Seleccionar cliente...</option>
+              {clients.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
             </select>
           </div>
           <div>
             <label className="input-label">Servicio o producto</label>
-            <select className="input-field">
-              <option>Seleccionar...</option>
-              <option>Corte + Peinado — $8,500</option>
-              <option>Coloración — $15,000</option>
-              <option>Manicura — $6,500</option>
-              <option>Barba — $4,500</option>
-            </select>
+            <input 
+              className="input-field" 
+              placeholder="Ej: Corte + Peinado" 
+              value={formData.service}
+              onChange={e => setFormData({...formData, service: e.target.value})}
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="input-label">Descuento (%)</label>
-              <input type="number" className="input-field" placeholder="0" />
+              <label className="input-label">Monto ($)</label>
+              <input 
+                type="number" 
+                className="input-field" 
+                placeholder="0" 
+                value={formData.amount}
+                onChange={e => setFormData({...formData, amount: e.target.value})}
+              />
             </div>
             <div>
               <label className="input-label">Método de pago</label>
-              <select className="input-field">
-                <option>Efectivo</option>
-                <option>Tarjeta</option>
-                <option>Transferencia</option>
+              <select 
+                className="input-field" 
+                value={formData.method}
+                onChange={e => setFormData({...formData, method: e.target.value})}
+              >
+                <option value="Efectivo">Efectivo</option>
+                <option value="Tarjeta">Tarjeta</option>
+                <option value="Transferencia">Transferencia</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="input-label">Fecha</label>
+              <input 
+                type="date" 
+                className="input-field" 
+                value={formData.date}
+                onChange={e => setFormData({...formData, date: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="input-label">Estado</label>
+              <select 
+                className="input-field" 
+                value={formData.status}
+                onChange={e => setFormData({...formData, status: e.target.value})}
+              >
+                <option value="paid">Pagado</option>
+                <option value="pending">Pendiente</option>
+                <option value="partial">Parcial</option>
               </select>
             </div>
           </div>
           <div className="p-4 rounded-xl bg-gray-50 flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-700">Total</span>
-            <span className="text-xl font-bold text-gray-900 font-display">$ 8,500</span>
+            <span className="text-sm font-medium text-gray-700">Total a registrar</span>
+            <span className="text-xl font-bold text-gray-900 font-display">${parseFloat(formData.amount || 0).toLocaleString()}</span>
           </div>
         </div>
       </Modal>

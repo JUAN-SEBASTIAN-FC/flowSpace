@@ -1,76 +1,98 @@
 import { useState } from 'react';
 import { PageHeader } from '../../components/ui/PageComponents';
 import Badge from '../../components/ui/Badge';
+import { useApp } from '../../context/AppContext';
 import {
-  BarChart3, TrendingUp, Calendar, DollarSign,
-  Users, Package, Download, Filter, ArrowUp, ArrowDown
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+} from 'recharts';
+import {
+  TrendingUp, Calendar, DollarSign, Users, Package, Download, Filter
 } from 'lucide-react';
-import toast from 'react-hot-toast';
-
-const monthlySales = [
-  { name: 'Enero', sales: 28000 },
-  { name: 'Febrero', sales: 32000 },
-  { name: 'Marzo', sales: 35000 },
-  { name: 'Abril', sales: 38000 },
-  { name: 'Mayo', sales: 42000 },
-  { name: 'Junio', sales: 45000 },
-  { name: 'Julio', sales: 48000 },
-  { name: 'Agosto', sales: 46000 },
-  { name: 'Septiembre', sales: 44000 },
-  { name: 'Octubre', sales: 43000 },
-  { name: 'Noviembre', sales: 41000 },
-  { name: 'Diciembre', sales: 49000 },
-];
-
-const popularServices = [
-  { name: 'Corte + Peinado', count: 48, revenue: 408000 },
-  { name: 'Coloración', count: 35, revenue: 385000 },
-  { name: 'Manicura', count: 32, revenue: 264000 },
-  { name: 'Barba', count: 28, revenue: 171600 },
-];
 
 export default function Reports() {
+  const { bills, clients, appointments, inventory } = useApp();
   const [filterRange, setFilterRange] = useState('currentMonth');
-  const ranges = ['Últimos 7 días', 'Últimos 30 días', 'Últimos 90 días', 'Últimos 12 meses'];
-  const selectedRange = ranges.find(r => r.startsWith(filterRange)) || ranges[0];
+  
+  const ranges = ['Últimos 7 días', 'Últimos 30 días', 'Últimos 90 días', 'Todo el tiempo'];
 
-  // Generate sample chart data for the selected range
-  const chartLabels = Array.from({ length: 12 }, (_, i) => 
-    new Date(2026, 0, i + 1).toLocaleString('es-AR', { month: 'short' })
-  );
-  const chartData = chartLabels.slice(0, ranges.indexOf(filterRange) + 1).map((_, i) => ({
-    name: chartLabels[i],
-    sales: 25000 + i * 5000 + Math.floor(Math.random() * 5000),
-  }));
+  // --- Data Processing for Charts ---
+  
+  // 1. Revenue by Day (Last 7 days)
+  const getRevenueData = () => {
+    const data = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayRevenue = bills
+        .filter(b => b.date === dateStr)
+        .reduce((acc, b) => acc + (b.total || 0), 0);
+      
+      data.push({
+        name: date.toLocaleDateString('es-AR', { weekday: 'short' }),
+        revenue: dayRevenue,
+      });
+    }
+    return data;
+  };
+
+  // 2. Service Popularity (Calculated from appointments)
+  const getServicePopularity = () => {
+    const counts = {};
+    appointments.forEach(apt => {
+      counts[apt.service] = (counts[apt.service] || 0) + 1;
+    });
+    return Object.entries(counts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  };
+
+  const revenueData = getRevenueData();
+  const popularServices = getServicePopularity();
+
+  // Global Stats
+  const totalRevenue = bills.reduce((acc, b) => acc + (b.total || 0), 0);
+  const totalAppointments = appointments.length;
+  const totalClients = clients.length;
+  const topService = popularServices[0]?.name || 'N/A';
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="px-4 py-6 sm:px-6 lg:px-8">
-        {/* Header */}
         <PageHeader
           title="Reportes"
           subtitle="Analizá el rendimiento de tu negocio"
-          children={
-            <button
-              onClick={() => toast.success('Exportando reporte...')}
-              className="btn-primary text-sm flex items-center gap-1"
-            >
-              <Download size={16} />
-              Exportar
-            </button>
-          }
-        />
+        >
+          <button
+            onClick={() => toast.success('Exportando reporte...')}
+            className="btn-primary text-sm flex items-center gap-1"
+          >
+            <Download size={16} />
+            Exportar
+          </button>
+        </PageHeader>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
           <div className="card p-5 text-center">
             <div className="flex flex-col items-center gap-2">
               <div className="p-2 bg-primary-100 text-primary-600 w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
-                <TrendingUp size={18} />
+                <DollarSign size={18} />
               </div>
-              <h3 className="text-xs text-primary-600">Ingresos del mes</h3>
-              <p className="text-3xl font-bold text-gray-900 mt-1 flex-1">{'$ 385,200'}</p>
-              <div className="text-sm text-gray-500 mt-0.5">+18% vs mes anterior</div>
+              <h3 className="text-xs text-primary-600">Ingresos Totales</h3>
+              <p className="text-3xl font-bold text-gray-900 mt-1">${totalRevenue.toLocaleString()}</p>
+              <div className="text-sm text-gray-500 mt-0.5">Histórico total</div>
+            </div>
+          </div>
+          <div className="card p-5 text-center">
+            <div className="flex flex-col items-center gap-2">
+              <div className="p-2 bg-primary-100 text-primary-600 w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
+                <Calendar size={18} />
+              </div>
+              <h3 className="text-xs text-primary-600">Citas Totales</h3>
+              <p className="text-3xl font-bold text-gray-900 mt-1">{totalAppointments}</p>
+              <div className="text-sm text-gray-500 mt-0.5">Atendidas y programadas</div>
             </div>
           </div>
           <div className="card p-5 text-center">
@@ -78,29 +100,19 @@ export default function Reports() {
               <div className="p-2 bg-primary-100 text-primary-600 w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
                 <Users size={18} />
               </div>
-              <h3 className="text-xs text-primary-600">Citas atendidas</h3>
-              <p className="text-3xl font-bold text-gray-900 mt-1 flex-1">{'142'}</p>
-              <div className="text-sm text-gray-500 mt-0.5">+12% vs mes anterior</div>
+              <h3 className="text-xs text-primary-600">Base de Clientes</h3>
+              <p className="text-3xl font-bold text-gray-900 mt-1">{totalClients}</p>
+              <div className="text-sm text-gray-500 mt-0.5">Registros activos</div>
             </div>
           </div>
           <div className="card p-5 text-center">
             <div className="flex flex-col items-center gap-2">
               <div className="p-2 bg-primary-100 text-primary-600 w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
-                <Package size={18} />
+                <TrendingUp size={18} />
               </div>
-              <h3 className="text-xs text-primary-600">Clientes nuevos</h3>
-              <p className="text-3xl font-bold text-gray-900 mt-1 flex-1">{'28'}</p>
-              <div className="text-sm text-gray-500 mt-0.5">+8%</div>
-            </div>
-          </div>
-          <div className="card p-5 text-center">
-            <div className="flex flex-col items-center gap-2">
-              <div className="p-2 bg-primary-100 text-primary-600 w-10 h-10 rounded-xl flex items-center justify-center shrink-0">
-                <clock size={18} />
-              </div>
-              <h3 className="text-xs text-primary-600">Servicio más vendido</h3>
-              <p className="text-3xl font-bold text-gray-900 mt-1 flex-1">{popularServices[0].name}</p>
-              <div className="text-xs text-gray-500 mt-0.5">{popularServices[0].count} veces</div>
+              <h3 className="text-xs text-primary-600">Servicio Top</h3>
+              <p className="text-xl font-bold text-gray-900 mt-1 truncate px-2">{topService}</p>
+              <div className="text-xs text-gray-500 mt-0.5">El más solicitado</div>
             </div>
           </div>
         </div>
@@ -108,7 +120,7 @@ export default function Reports() {
         {/* Date Range Filter */}
         <div className="flex items-center gap-2 mb-6">
           <span className="text-sm text-gray-600">Filtrar por:</span>
-          {[selectedRange, ...ranges.slice(ranges.indexOf(selectedRange) + 1)].map(range => (
+          {ranges.map(range => (
             <button
               key={range}
               onClick={() => setFilterRange(range)}
@@ -124,127 +136,124 @@ export default function Reports() {
 
         {/* Charts Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Income Chart */}
-          <div className="bg-white rounded-xl p-4 shadow-card flex flex-col">
-            <h3 className="text-lg font-semibold text-gray-900 font-display flex items-center gap-2 mb-3">
+          {/* Revenue Chart */}
+          <div className="card p-5 flex flex-col">
+            <h3 className="text-lg font-semibold text-gray-900 font-display flex items-center gap-2 mb-6">
               <TrendingUp size={18} className="text-primary-500" />
-              Ingresos mensuales
+              Ingresos últimos 7 días
             </h3>
-            <div className="flex flex-col gap-2">
-              {chartData.map((d, i) => (
-                <div key={i} className="w-full bg-gray-100 rounded-t-lg rounded-b-lg overflow-hidden">
-                  <Div className="h-3 gradient-brownrelative w-full bg-blue-500 rounded-lg group">
-                    <Div className="h-3 bg-blue-500 rounded-t-lg group-hover:scale-105 transition-transform duration-150" />
-                  </Div>
-                </div>
-              ))}
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 12, fill: '#9ca3af' }} 
+                  />
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 12, fill: '#9ca3af' }} 
+                    tickFormatter={(value) => `$${value}`}
+                  />
+                  <Tooltip 
+                    cursor={{ fill: '#f9fafb' }}
+                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                  />
+                  <Bar 
+                    dataKey="revenue" 
+                    fill="#4f46e5" 
+                    radius={[4, 4, 0, 0]} 
+                    barSize={30}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
 
           {/* Popular Services */}
-          <div className="bg-white rounded-xl p-4 shadow-card flex flex-col">
-            <h3 className="text-lg font-semibold text-gray-900 font-display flex items-center gap-2 mb-3">
+          <div className="card p-5 flex flex-col">
+            <h3 className="text-lg font-semibold text-gray-900 font-display flex items-center gap-2 mb-6">
               <Users size={18} className="text-primary-500" />
-              Servicios más vendidos
+              Servicios más solicitados
             </h3>
-            <div className="space-y-2 flex-1">
-              {popularServices.map((service, i) => (
-                <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 transition-colors hover:bg-gray-100">
-                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center shrink-0">
-                    <service.icon size={14} className="text-primary-600" />
+            <div className="space-y-4 flex-1">
+              {popularServices.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-8">No hay datos de servicios aún</p>
+              ) : (
+                popularServices.map((service, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-gray-50 rounded-xl p-3 transition-colors hover:bg-gray-100">
+                    <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center shrink-0 font-bold text-primary-600 text-xs">
+                      {i + 1}
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-900">{service.name}</p>
+                      <p className="text-xs text-gray-500">{service.count} veces</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-24 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className="bg-primary-600 h-full rounded-full" 
+                          style={{ width: `${Math.min(100, (service.count / (popularServices[0]?.count || 1)) * 100)}%` }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-900">{service.name}</p>
-                    <p className="text-xs text-gray-500">{service.count} servicios</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="w-full h-2 bg-gray-300 rounded-full overflow-hidden">
-                      <div
-                        className="fill-primary-600 rounded-full shadow-sm px-2"
-                        style={{ width: `${Math.min(100, service.count / 10 * 10)}%` }}
-                      ></div>
-                    </span>
-                    <span className="text-xs text-gray-400 ml-1">{service.revenue.toLocaleString()} $</span>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         </div>
 
-        {/* Bottom Grid: Clients Frecuentes & Inventario Consumido */}
+        {/* Bottom Grid: Clients & Inventory */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-          {/* Clientes Frecuentes Table */}
           <div className="card p-5">
             <h3 className="text-lg font-semibold text-gray-900 font-display mb-3 flex items-center gap-2">
               <Users size={18} className="text-primary-500" />
-              Clientes frecuentes
+              Clientes más frecuentes
             </h3>
             <div className="overflow-hidden">
-              <table className="w-full table table-zebra">
+              <table className="w-full">
                 <thead className="bg-primary-50">
                   <tr className="text-left">
                     <th className="px-3 py-2 text-sm font-semibold text-gray-600">Nombre</th>
-                    <th className="px-3 py-2 text-sm font-semibold text-gray-600">Visitas</th>
-                    <th className="px-3 py-2 text-sm font-semibold text-gray-600">Última visita</th>
-                    <th className="px-3 py-2 text-sm font-semibold text-gray-600">Total gastado</th>
+                    <th className="px-3 py-2 text-sm font-semibold text-gray-600 text-center">Visitas</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr className="border-b border-primary-100 hover:bg-primary-50">
-                    <td className="px-3 py-2">Laura Martínez</td>
-                    <td className="px-3 py-2 font-medium text-gray-900">12</td>
-                    <td className="px-3 py-2 text-sm text-gray-600">Hoy</td>
-                    <td className="px-3 py-2 font-medium text-gray-900">$ 12,340</td>
-                  </tr>
-                  <tr className="border-b border-primary-100 hover:bg-primary-50">
-                    <td className="px-3 py-2">Sofía García</td>
-                    <td className="px-3 py-2 font-medium text-gray-900">9</td>
-                    <td className="px-3 py-2 text-sm text-gray-600">2 días atrás</td>
-                    <td className="px-3 py-2 text-sm text-gray-900">$ 8,900</td>
-                  </tr>
-                  <tr className="border-b border-primary-100 hover:bg-primary-50">
-                    <td className="px-3 py-2">Martín Díaz</td>
-                    <td className="px-3 py-2 font-medium text-gray-900">5</td>
-                    <td className="px-3 py-2 text-sm text-gray-600">5 días atrás</td>
-                    <td className="px-3 py-2 text-sm text-gray-900">$ 5,200</td>
-                  </tr>
+                <tbody className="divide-y divide-gray-100">
+                  {clients.sort((a, b) => (b.visits || 0) - (a.visits || 0)).slice(0, 5).map(client => (
+                    <tr key={client.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-3 py-2 text-sm text-gray-900">{client.name}</td>
+                      <td className="px-3 py-2 text-sm text-gray-600 text-center font-medium">{client.visits || 0}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* Inventario Consumido */}
           <div className="card p-5">
             <h3 className="text-lg font-semibold text-gray-900 font-display mb-3 flex items-center gap-2">
               <Package size={18} className="text-amber-500" />
-              Inventario consumido
+              Productos críticos
             </h3>
             <div className="overflow-hidden">
-              <table className="w-full table table-zebra">
+              <table className="w-full">
                 <thead className="bg-amber-50">
                   <tr className="text-left">
                     <th className="px-3 py-2 text-sm font-semibold text-amber-600">Producto</th>
-                    <th className="px-3 py-2 text-sm font-semibold text-amber-600">Cantidad</th>
-                    <th className="px-3 py-2 text-sm font-semibold text-amber-600">Costo unitario</th>
+                    <th className="px-3 py-2 text-sm font-semibold text-amber-600 text-center">Stock</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-amber-100">
-                  <tr>
-                    <td className="px-3 py-2">Shampoo Profesional 500ml</td>
-                    <td className="px-3 py-2">2</td>
-                    <td className="px-3 py-2 text-sm text-amber-600">$ 8,500</td>
-                  </tr>
-                  <tr>
-                    <td className="px-3 py-2">Tinte Castaño 5.0</td>
-                    <td className="px-3 py-2">1</td>
-                    <td className="px-3 py-2 text-sm text-amber-600">$ 4,500</td>
-                  </tr>
-                  <tr>
-                    <td className="px-3 py-2">Guantes Descartables x100</td>
-                    <td className="px-3 py-2">0</td>
-                    <td className="px-3 py-2 text-sm text-amber-600">$ 3,200</td>
-                  </tr>
+                  {inventory.filter(i => i.stock <= i.minStock).slice(0, 5).map(item => (
+                    <tr key={item.id} className="hover:bg-amber-50/30 transition-colors">
+                      <td className="px-3 py-2 text-sm text-gray-900">{item.name}</td>
+                      <td className="px-3 py-2 text-sm text-amber-600 text-center font-bold">{item.stock}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

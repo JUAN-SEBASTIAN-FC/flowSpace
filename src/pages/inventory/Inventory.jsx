@@ -2,44 +2,82 @@ import { useState } from 'react';
 import { PageHeader } from '../../components/ui/PageComponents';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
+import { useApp } from '../../context/AppContext';
 import {
   Plus, Search, Package, AlertTriangle, Filter,
   TrendingUp, ShoppingCart, ArrowDown, ArrowUp, Edit, Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const products = [
-  { id: 1, name: 'Shampoo Profesional 500ml', category: 'Productos', stock: 2, min: 5, price: '$ 8,500', sales: 48, status: 'critical' },
-  { id: 2, name: 'Acondicionador Hidratante', category: 'Productos', stock: 12, min: 5, price: '$ 7,200', sales: 35, status: 'ok' },
-  { id: 3, name: 'Tinte Castaño 5.0', category: 'Coloración', stock: 1, min: 3, price: '$ 4,500', sales: 22, status: 'critical' },
-  { id: 4, name: 'Tinte Rubio 8.0', category: 'Coloración', stock: 6, min: 3, price: '$ 4,500', sales: 18, status: 'ok' },
-  { id: 5, name: 'Guantes Descartables x100', category: 'Insumos', stock: 0, min: 10, price: '$ 3,200', sales: 5, status: 'out' },
-  { id: 6, name: 'Crema de Peinar', category: 'Productos', stock: 8, min: 4, price: '$ 5,900', sales: 30, status: 'ok' },
-  { id: 7, name: 'Alcohol en Gel', category: 'Insumos', stock: 3, min: 5, price: '$ 2,100', sales: 12, status: 'low' },
-];
-
-const inventoryStats = {
-  total: 142,
-  lowStock: 3,
-  outOfStock: 1,
-  categories: 3,
-};
-
 export default function Inventory() {
+  const { inventory, addInventoryItem, updateStock, setInventory } = useApp();
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  const filtered = products.filter(p => {
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    category: '',
+    price: '',
+    stock: '',
+    minStock: ''
+  });
+
+  const filtered = inventory.filter(p => {
     if (search && !p.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (filterCategory !== 'all' && p.category !== filterCategory) return false;
-    if (filterStatus === 'critical' && p.status === 'ok') return false;
-    if (filterStatus === 'ok' && p.status !== 'ok') return false;
+    
+    const isCritical = p.stock <= p.minStock;
+    if (filterStatus === 'critical' && !isCritical) return false;
+    if (filterStatus === 'ok' && isCritical) return false;
+    
     return true;
   });
 
-  const categories = [...new Set(products.map(p => p.category))];
+  const categories = [...new Set(inventory.map(p => p.category))];
+
+  const stats = {
+    total: inventory.length,
+    lowStock: inventory.filter(p => p.stock <= p.minStock && p.stock > 0).length,
+    outOfStock: inventory.filter(p => p.stock === 0).length,
+    categories: categories.length,
+  };
+
+  const handleAddProduct = (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.price || !formData.stock) {
+      toast.error('Por favor completa los campos obligatorios');
+      return;
+    }
+
+    addInventoryItem({
+      ...formData,
+      price: parseFloat(formData.price),
+      stock: parseInt(formData.stock),
+      minStock: parseInt(formData.minStock) || 5,
+    });
+
+    toast.success('Producto agregado exitosamente');
+    setFormData({ name: '', category: '', price: '', stock: '', minStock: '' });
+    setShowModal(false);
+  };
+
+  const handleUpdateStock = (id) => {
+    const newStock = prompt('Ingrese la nueva cantidad de stock:');
+    if (newStock !== null && !isNaN(parseInt(newStock))) {
+      updateStock(id, parseInt(newStock));
+      toast.success('Stock actualizado');
+    }
+  };
+
+  const handleDeleteProduct = (id) => {
+    if (window.confirm('¿Estás seguro de eliminar este producto?')) {
+      setInventory(prev => prev.filter(p => p.id !== id));
+      toast.error('Producto eliminado');
+    }
+  };
 
   return (
     <div>
@@ -55,28 +93,28 @@ export default function Inventory() {
           <div className="p-2 bg-primary-100 rounded-xl text-primary-600"><Package size={18} /></div>
           <div>
             <p className="text-xs text-gray-500">Total productos</p>
-            <p className="text-lg font-bold text-gray-900">{inventoryStats.total}</p>
+            <p className="text-lg font-bold text-gray-900">{stats.total}</p>
           </div>
         </div>
         <div className="card p-4 flex items-center gap-3">
           <div className="p-2 bg-amber-100 rounded-xl text-amber-600"><AlertTriangle size={18} /></div>
           <div>
             <p className="text-xs text-gray-500">Stock bajo</p>
-            <p className="text-lg font-bold text-amber-600">{inventoryStats.lowStock}</p>
+            <p className="text-lg font-bold text-amber-600">{stats.lowStock}</p>
           </div>
         </div>
         <div className="card p-4 flex items-center gap-3">
           <div className="p-2 bg-red-100 rounded-xl text-red-600"><AlertTriangle size={18} /></div>
           <div>
             <p className="text-xs text-gray-500">Agotados</p>
-            <p className="text-lg font-bold text-red-600">{inventoryStats.outOfStock}</p>
+            <p className="text-lg font-bold text-red-600">{stats.outOfStock}</p>
           </div>
         </div>
         <div className="card p-4 flex items-center gap-3">
           <div className="p-2 bg-blue-100 rounded-xl text-blue-600"><Filter size={18} /></div>
           <div>
             <p className="text-xs text-gray-500">Categorías</p>
-            <p className="text-lg font-bold text-gray-900">{inventoryStats.categories}</p>
+            <p className="text-lg font-bold text-gray-900">{stats.categories}</p>
           </div>
         </div>
       </div>
@@ -107,7 +145,7 @@ export default function Inventory() {
         >
           <option value="all">Todos los estados</option>
           <option value="ok">Stock normal</option>
-          <option value="critical">Stock crítico</option>
+          <option value="critical">Stock crítico/agotado</option>
         </select>
       </div>
 
@@ -120,73 +158,71 @@ export default function Inventory() {
               <th className="table-th">Categoría</th>
               <th className="table-th">Stock</th>
               <th className="table-th">Precio</th>
-              <th className="table-th">Ventas</th>
               <th className="table-th">Estado</th>
               <th className="table-th"></th>
             </tr>
           </thead>
           <tbody>
-            {filtered.map(product => (
-              <tr key={product.id} className="hover:bg-gray-50/50 transition-colors">
-                <td className="table-td">
-                  <div className="flex items-center gap-2">
-                    <Package size={14} className="text-gray-400" />
-                    <span className="font-medium text-gray-900">{product.name}</span>
-                  </div>
-                </td>
-                <td className="table-td">
-                  <Badge variant="neutral">{product.category}</Badge>
-                </td>
-                <td className="table-td">
-                  <div className="flex items-center gap-2">
-                    <span className={`font-semibold ${
-                      product.stock === 0 ? 'text-red-600' :
-                      product.stock <= product.min ? 'text-amber-600' : 'text-gray-900'
-                    }`}>
-                      {product.stock}
-                    </span>
-                    <span className="text-xs text-gray-400">/ {product.min} mín</span>
-                    {product.stock <= product.min && (
-                      <ArrowDown size={12} className="text-amber-500" />
-                    )}
-                  </div>
-                </td>
-                <td className="table-td font-medium">{product.price}</td>
-                <td className="table-td">
-                  <div className="flex items-center gap-1">
-                    <TrendingUp size={12} className="text-green-500" />
-                    <span>{product.sales}</span>
-                  </div>
-                </td>
-                <td className="table-td">
-                  <Badge
-                    variant={
-                      product.status === 'out' ? 'danger' :
-                      product.status === 'critical' ? 'warning' : 'success'
-                    }
-                  >
-                    {product.status === 'out' ? 'Agotado' :
-                     product.status === 'critical' ? 'Crítico' : 'En stock'}
-                  </Badge>
-                </td>
-                <td className="table-td">
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => toast.success('Stock actualizado')}
-                      className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-primary-600"
+            {filtered.map(product => {
+              const isCritical = product.stock <= product.minStock;
+              return (
+                <tr key={product.id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="table-td">
+                    <div className="flex items-center gap-2">
+                      <Package size={14} className="text-gray-400" />
+                      <span className="font-medium text-gray-900">{product.name}</span>
+                    </div>
+                  </td>
+                  <td className="table-td">
+                    <Badge variant="neutral">{product.category}</Badge>
+                  </td>
+                  <td className="table-td">
+                    <div className="flex items-center gap-2">
+                      <span className={`font-semibold ${
+                        product.stock === 0 ? 'text-red-600' :
+                        product.stock <= product.minStock ? 'text-amber-600' : 'text-gray-900'
+                      }`}>
+                        {product.stock}
+                      </span>
+                      <span className="text-xs text-gray-400">/ {product.minStock} mín</span>
+                      {isCritical && (
+                        <ArrowDown size={12} className="text-amber-500" />
+                      )}
+                    </div>
+                  </td>
+                  <td className="table-td font-medium">${product.price}</td>
+                  <td className="table-td">
+                    <Badge
+                      variant={
+                        product.stock === 0 ? 'danger' :
+                        isCritical ? 'warning' : 'success'
+                      }
                     >
-                      <Edit size={14} />
-                    </button>
-                    <button
-                      onClick={() => toast.error('Producto eliminado')}
-                      className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                      {product.stock === 0 ? 'Agotado' :
+                       isCritical ? 'Crítico' : 'En stock'}
+                    </Badge>
+                  </td>
+                  <td className="table-td">
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleUpdateStock(product.id)}
+                        className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-primary-600"
+                        title="Actualizar Stock"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProduct(product.id)}
+                        className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600"
+                        title="Eliminar"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -199,46 +235,68 @@ export default function Inventory() {
         footer={
           <>
             <button onClick={() => setShowModal(false)} className="btn-secondary">Cancelar</button>
-            <button
-              onClick={() => { setShowModal(false); toast.success('Producto agregado'); }}
-              className="btn-primary"
-            >
-              Guardar producto
-            </button>
+            <button onClick={handleAddProduct} className="btn-primary">Guardar producto</button>
           </>
         }
       >
-        <div className="space-y-4">
+        <form onSubmit={handleAddProduct} className="space-y-4">
           <div>
-            <label className="input-label">Nombre del producto</label>
-            <input className="input-field" placeholder="Shampoo Profesional" />
+            <label className="input-label">Nombre del producto *</label>
+            <input 
+              className="input-field" 
+              placeholder="Shampoo Profesional" 
+              value={formData.name}
+              onChange={e => setFormData({...formData, name: e.target.value})}
+            />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="input-label">Categoría</label>
-              <select className="input-field">
-                <option>Seleccionar...</option>
-                <option>Productos</option>
-                <option>Coloración</option>
-                <option>Insumos</option>
+              <select 
+                className="input-field" 
+                value={formData.category}
+                onChange={e => setFormData({...formData, category: e.target.value})}
+              >
+                <option value="">Seleccionar...</option>
+                <option value="Productos">Productos</option>
+                <option value="Coloración">Coloración</option>
+                <option value="Insumos">Insumos</option>
               </select>
             </div>
             <div>
-              <label className="input-label">Precio</label>
-              <input type="number" className="input-field" placeholder="$ 0" />
+              <label className="input-label">Precio ($) *</label>
+              <input 
+                type="number" 
+                className="input-field" 
+                placeholder="0" 
+                value={formData.price}
+                onChange={e => setFormData({...formData, price: e.target.value})}
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="input-label">Stock inicial</label>
-              <input type="number" className="input-field" placeholder="0" />
+              <label className="input-label">Stock inicial *</label>
+              <input 
+                type="number" 
+                className="input-field" 
+                placeholder="0" 
+                value={formData.stock}
+                onChange={e => setFormData({...formData, stock: e.target.value})}
+              />
             </div>
             <div>
               <label className="input-label">Stock mínimo</label>
-              <input type="number" className="input-field" placeholder="5" />
+              <input 
+                type="number" 
+                className="input-field" 
+                placeholder="5" 
+                value={formData.minStock}
+                onChange={e => setFormData({...formData, minStock: e.target.value})}
+              />
             </div>
           </div>
-        </div>
+        </form>
       </Modal>
     </div>
   );

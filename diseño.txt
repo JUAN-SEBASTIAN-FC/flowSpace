@@ -1,0 +1,458 @@
+Actúa como un Senior UI/UX Designer + Frontend Architect + Experto en Diseño de Interfaces Premium, especializado en aplicaciones modernas, SaaS, dashboards y productos tecnológicos de alto nivel.
+
+Tu tarea es realizar un mejoramiento visual completo, profesional y exhaustivo de toda la aplicación, elevando el diseño al nivel de un producto premium, moderno, elegante, altamente usable y visualmente impactante.
+
+La meta es transformar la aplicación en una interfaz de calidad profesional, coherente, moderna, responsive y lista para producción, con apariencia comparable a productos de alto nivel como:
+
+Stripe,
+Linear,
+Vercel,
+Notion,
+Framer.
+
+OBJETIVO PRINCIPAL
+
+Realizar un rediseño visual completo de toda la app, mejorando:
+
+Diseño general.
+UI/UX.
+Responsive Design.
+Espaciados.
+Distribución visual.
+Tipografía.
+Tamaños.
+Posicionamiento.
+Coherencia visual.
+Paleta de colores.
+Sombras.
+Bordes.
+Cards.
+Inputs.
+Botones.
+Modales.
+Formularios.
+Sidebar.
+Navbar.
+Tablas.
+Dashboard.
+Gráficas.
+Estados vacíos.
+Scroll.
+Microanimaciones.
+Transiciones.
+Feedback visual.
+Accesibilidad.
+Experiencia de usuario completa.
+
+Nada debe verse improvisado, roto, pequeño, gigante, mal alineado o desorganizado.
+
+DISEÑO VISUAL GENERAL
+
+Aplicar un diseño:
+
+Moderno.
+Premium.
+Minimalista pero elegante.
+Tecnológico.
+Profesional.
+Sofisticado.
+Muy limpio.
+Visualmente impactante.
+Altamente usable.
+Comercialmente vendible.
+
+Evitar completamente:
+
+Diseño amateur.
+Elementos desalineados.
+Tamaños inconsistentes.
+CSS roto.
+Elementos pegados.
+Texto mal distribuido.
+Espacios vacíos incoherentes.
+Colores sin armonía.
+Interfaces saturadas.
+
+La aplicación debe sentirse premium y coherente en cada pantalla.
+
+SISTEMA VISUAL Y CONSISTENCIA
+
+Crear un sistema de diseño global consistente:
+
+Espaciados
+
+Aplicar spacing system profesional:
+
+Padding uniforme.
+Margin consistente.
+Separaciones balanceadas.
+Grid profesional.
+Buena respiración visual.
+Nada pegado.
+
+Usar una escala visual coherente en:
+
+4px
+8px
+12px
+16px
+24px
+32px
+48px
+64px
+PALETA DE COLORES
+
+Rediseñar completamente los colores.
+
+Crear una paleta moderna y premium:
+
+Color principal
+
+Elegante y tecnológico.
+
+Color secundario
+
+Complementario y coherente.
+
+Accent color
+
+Para acciones importantes.
+
+Estados UI
+
+Definir colores consistentes para:
+
+Success
+Error
+Warning
+Info
+Aplicar:
+Gradientes modernos.
+Transparencias sutiles.
+Glassmorphism ligero.
+Blur elegante.
+Depth visual.
+
+Evitar colores chillones o saturados.
+
+Mantener una identidad visual fuerte.
+
+GRADIENTES PROFESIONALES
+
+Aplicar gradientes modernos y elegantes en:
+
+Hero sections.
+Headers.
+Botones importantes.
+Cards destacadas.
+Iconos.
+Fondos premium.
+Estados activos.
+
+Los gradientes deben verse:
+
+Suaves.
+Premium.
+Modernos.
+Sutiles.
+Elegantes.
+
+No exagerar.
+
+TIPOGRAFÍA
+
+Optimizar completamente la tipografía.
+
+Aplicar:
+
+Jerarquía visual clara
+Headings fuertes.
+Subheadings limpios.
+Texto legible.
+Labels consistentes.
+Mejorar:
+Font-size.
+Font-weight.
+Line-height.
+Letter-spacing.
+Contraste.
+
+Todo el texto debe verse:
+
+Legible.
+Profesional.
+Escaneable.
+
+Nada pequeño ni gigante.
+
+RESPONSIVE DESIGN (MUY IMPORTANTE)
+
+La aplicación debe adaptarse perfectamente a:
+
+Desktop
+
+1920px+
+
+Laptop
+
+1440px
+
+Tablet
+
+768px–1024px
+
+Mobile
+
+320px–767px
+
+Requisitos responsive:
+
+NADA debe romperse.
+
+Corregir completamente:
+
+Overflows.
+Scroll horizontal.
+Elementos cortados.
+Cards dañadas.
+Textos salidos.
+Inputs rotos.
+Modales fuera de pantalla.
+Tablas mal renderizadas.
+Botones invisibles.
+
+Adaptar automáticamente:
+
+Grid layouts.
+Sidebars.
+Navbar.
+Cards.
+Formularios.
+Inputs.
+Tablas.
+Dashboard.
+Contenedores.
+
+Implementar:
+
+Flexbox.
+CSS Grid.
+Media Queries.
+Responsive spacing.
+Adaptive sizing.
+
+En móvil:
+
+Mejor experiencia táctil.
+Botones grandes.
+Inputs accesibles.
+Navegación clara.
+ANIMACIONES Y MICROINTERACCIONES
+
+Agregar animaciones modernas y premium.
+
+Implementar:
+Hover animations
+Elevación sutil.
+Scale ligero.
+Glow elegante.
+Smooth transitions.
+Fade animations
+Fade in.
+Fade out.
+Scroll animations
+Reveal animations.
+Smooth transitions.
+Loading animations
+Skeleton loaders.
+Smooth loaders.
+Page transitions
+Transiciones suaves.
+Modals
+Entrance animation.
+Exit animation.
+Buttons
+Hover premium.
+Press effect.
+Feedback visual.
+
+Todas las animaciones deben verse:
+
+Fluidas.
+Elegantes.
+Profesionales.
+
+NO exageradas.
+
+Priorizar rendimiento.
+
+BOTONES
+
+Rediseñar todos los botones.
+
+Deben verse:
+
+Premium.
+Modernos.
+Claros.
+Consistentes.
+
+Aplicar:
+
+Border radius elegante.
+Hover effects.
+Active states.
+Disabled states.
+Focus states.
+Sombras suaves.
+
+Tamaños consistentes.
+
+CARDS
+
+Mejorar completamente las cards.
+
+Aplicar:
+
+Bordes redondeados premium.
+Shadows modernas.
+Hover elevation.
+Padding consistente.
+Mejor jerarquía visual.
+
+Nada debe verse plano o viejo.
+
+FORMULARIOS
+
+Optimizar completamente:
+
+Inputs
+Modernos.
+Grandes.
+Claros.
+Bien espaciados.
+Selects
+Diseño premium.
+Textareas
+Mejor experiencia visual.
+Validaciones
+Estados visuales claros.
+Labels
+Claras y ordenadas.
+Errors
+Elegantes y visibles.
+MODALES
+
+Rediseñar todos los modales.
+
+Corregir:
+
+Tamaños.
+Positioning.
+Overflow.
+Scroll interno.
+
+Agregar:
+
+Fondo blur.
+Entrance animation.
+Exit animation.
+Mejor padding.
+Mejor estructura.
+
+Responsive total.
+
+DASHBOARD Y TABLAS
+
+Mejorar:
+
+Dashboard
+Distribución limpia.
+KPI cards premium.
+Mejor organización visual.
+Tables
+Responsive.
+Hover states.
+Mejor espaciado.
+Sticky headers si aplica.
+Scroll elegante.
+ICONOGRAFÍA
+
+Aplicar iconos modernos y consistentes.
+
+Mantener:
+
+Mismo estilo visual.
+Tamaños coherentes.
+Buen alineamiento.
+SOMBRAS Y PROFUNDIDAD
+
+Aplicar sistema de elevación profesional.
+
+Sombras:
+
+Suaves.
+Elegantes.
+Premium.
+
+Crear profundidad sin exagerar.
+
+ESTADOS VACÍOS
+
+Diseñar estados para:
+
+No data.
+Error.
+Loading.
+Empty states.
+
+Deben verse modernos y útiles.
+
+SCROLL
+
+Mejorar scrollbar:
+
+Moderna.
+Delgada.
+Elegante.
+Consistente con la marca.
+ACCESIBILIDAD
+
+Mejorar:
+
+Contraste.
+Navegación.
+Legibilidad.
+Focus states.
+UX general.
+OPTIMIZACIÓN DE CSS
+
+Refactorizar estilos para:
+
+Código limpio.
+Modular.
+Reutilizable.
+Escalable.
+Profesional.
+
+Eliminar:
+
+CSS redundante.
+Estilos duplicados.
+Inconsistencias visuales.
+RESULTADO ESPERADO
+
+El resultado final debe sentirse como una aplicación SaaS premium moderna, de alto nivel, visualmente impresionante y completamente responsive.
+
+Todo debe verse:
+
+Pulido.
+Elegante.
+Consistente.
+Profesional.
+Moderno.
+Fluido.
+Responsive.
+Premium.
+
+Analiza cuidadosamente toda la aplicación y mejora absolutamente cada detalle visual, UI/UX, responsive, animaciones, gradientes, espaciados, tamaños y coherencia general. No hagas cambios básicos ni superficiales. Lleva el diseño a un nivel profesional real listo para producción.

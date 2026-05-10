@@ -3,41 +3,57 @@ import { PageHeader } from '../../components/ui/PageComponents';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
 import EmptyState from '../../components/ui/EmptyState';
+import { useApp } from '../../context/AppContext';
 import {
   Plus, Search, Users, Mail, Phone, Tag,
   Calendar, ShoppingBag, FileText, MessageCircle, X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const clients = [
-  { id: 1, name: 'Laura Martínez', email: 'laura@email.com', phone: '+54 11 3456-7890', visits: 12, lastVisit: 'Hoy', tags: ['VIP', 'Frecuente'] },
-  { id: 2, name: 'Carlos Ruiz', email: 'carlos@email.com', phone: '+54 11 4567-8901', visits: 3, lastVisit: 'Hace 2 días', tags: ['Nuevo'] },
-  { id: 3, name: 'Ana López', email: 'ana@email.com', phone: '+54 11 5678-9012', visits: 28, lastVisit: 'Ayer', tags: ['VIP'] },
-  { id: 4, name: 'Pedro Sánchez', email: 'pedro@email.com', phone: '+54 11 6789-0123', visits: 5, lastVisit: 'Hace 5 días', tags: [] },
-  { id: 5, name: 'Sofía García', email: 'sofia@email.com', phone: '+54 11 7890-1234', visits: 15, lastVisit: 'Hoy', tags: ['Frecuente'] },
-];
-
-const clientHistory = [
-  { id: 1, type: 'appointment', description: 'Corte + Peinado', date: '09/05/2026', employee: 'María' },
-  { id: 2, type: 'purchase', description: 'Shampoo Profesional', date: '02/05/2026', amount: '$ 8,500' },
-  { id: 3, type: 'appointment', description: 'Coloración', date: '25/04/2026', employee: 'Sofía' },
-  { id: 4, type: 'appointment', description: 'Manicura', date: '18/04/2026', employee: 'Sofía' },
-];
-
 export default function Clients() {
+  const { clients, addClient } = useApp();
   const [showModal, setShowModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [viewMode, setViewMode] = useState('grid');
   const [search, setSearch] = useState('');
+  
+  // State for new client form
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    notes: '',
+    tags: ''
+  });
 
   const filtered = clients.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase()) ||
-    c.email.toLowerCase().includes(search.toLowerCase())
+    c.email.toLowerCase().includes(search.toLowerCase()) ||
+    c.phone.toLowerCase().includes(search.toLowerCase())
   );
 
   const openProfile = (client) => {
     setSelectedClient(client);
     setShowModal(true);
+  };
+
+  const handleAddClient = (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.phone) {
+      toast.error('El nombre y teléfono son obligatorios');
+      return;
+    }
+
+    addClient({
+      ...formData,
+      tags: formData.tags.split(',').map(t => t.trim()).filter(t => t !== ''),
+      visits: 1,
+      lastVisit: 'Hoy'
+    });
+
+    toast.success('Cliente agregado exitosamente');
+    setFormData({ name: '', email: '', phone: '', notes: '', tags: '' });
+    setShowModal(false);
   };
 
   return (
@@ -60,7 +76,10 @@ export default function Clients() {
               Lista
             </button>
           </div>
-          <button className="btn-primary text-sm flex items-center gap-2">
+          <button 
+            onClick={() => setShowModal(true)} 
+            className="btn-primary text-sm flex items-center gap-2"
+          >
             <Plus size={16} /> Agregar cliente
           </button>
         </div>
@@ -109,13 +128,13 @@ export default function Clients() {
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <Calendar size={12} /> {client.lastVisit}
+                  <Calendar size={12} /> {client.lastVisit || 'Sin visitas'}
                 </div>
                 <span className="text-xs font-semibold text-primary-600 bg-primary-50 px-2 py-0.5 rounded-full">
-                  {client.visits} visitas
+                  {client.visits || 0} visitas
                 </span>
               </div>
-              {client.tags.length > 0 && (
+              {client.tags && client.tags.length > 0 && (
                 <div className="flex gap-1 mt-3 flex-wrap">
                   {client.tags.map(tag => (
                     <span key={tag} className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
@@ -150,15 +169,15 @@ export default function Clients() {
                   <td className="table-td font-semibold text-gray-900">{client.name}</td>
                   <td className="table-td">{client.email}</td>
                   <td className="table-td">{client.phone}</td>
-                  <td className="table-td">{client.lastVisit}</td>
+                  <td className="table-td">{client.lastVisit || 'N/A'}</td>
                   <td className="table-td">
                     <span className="text-xs font-semibold text-primary-600 bg-primary-50 px-2 py-0.5 rounded-full">
-                      {client.visits}
+                      {client.visits || 0}
                     </span>
                   </td>
                   <td className="table-td">
                     <div className="flex gap-1">
-                      {client.tags.map(tag => (
+                      {client.tags?.map(tag => (
                         <span key={tag} className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
                           {tag}
                         </span>
@@ -172,9 +191,76 @@ export default function Clients() {
         </div>
       )}
 
+      {/* Add Client Modal */}
+      <Modal
+        open={showModal && !selectedClient}
+        onClose={() => { setShowModal(false); setSelectedClient(null); }}
+        title="Nuevo Cliente"
+        footer={
+          <>
+            <button onClick={() => setShowModal(false)} className="btn-secondary">Cancelar</button>
+            <button onClick={handleAddClient} className="btn-primary">Guardar Cliente</button>
+          </>
+        }
+      >
+        <form onSubmit={handleAddClient} className="space-y-4">
+          <div>
+            <label className="input-label">Nombre completo *</label>
+            <input
+              type="text"
+              className="input-field"
+              value={formData.name}
+              onChange={e => setFormData({...formData, name: e.target.value})}
+              placeholder="Ej: Juan Pérez"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="input-label">Email</label>
+              <input
+                type="email"
+                className="input-field"
+                value={formData.email}
+                onChange={e => setFormData({...formData, email: e.target.value})}
+                placeholder="juan@email.com"
+              />
+            </div>
+            <div>
+              <label className="input-label">Teléfono *</label>
+              <input
+                type="text"
+                className="input-field"
+                value={formData.phone}
+                onChange={e => setFormData({...formData, phone: e.target.value})}
+                placeholder="+54 11 ..."
+              />
+            </div>
+          </div>
+          <div>
+            <label className="input-label">Etiquetas (separadas por coma)</label>
+            <input
+              type="text"
+              className="input-field"
+              value={formData.tags}
+              onChange={e => setFormData({...formData, tags: e.target.value})}
+              placeholder="VIP, Frecuente, Nuevo"
+            />
+          </div>
+          <div>
+            <label className="input-label">Notas internas</label>
+            <textarea
+              className="input-field h-24 resize-none"
+              value={formData.notes}
+              onChange={e => setFormData({...formData, notes: e.target.value})}
+              placeholder="Cualquier detalle importante..."
+            />
+          </div>
+        </form>
+      </Modal>
+
       {/* Client Profile Modal */}
       <Modal
-        open={showModal}
+        open={showModal && selectedClient}
         onClose={() => { setShowModal(false); setSelectedClient(null); }}
         title={
           selectedClient && (
@@ -184,10 +270,10 @@ export default function Clients() {
                   {selectedClient.name?.split(' ').map(w => w[0]).join('').slice(0, 2)}
                 </span>
               </div>
-              <div>
+              <div className="flex items-center gap-2">
                 <span>{selectedClient.name}</span>
                 {selectedClient.tags?.map(tag => (
-                  <Badge key={tag} variant="primary" className="ml-2">{tag}</Badge>
+                  <Badge key={tag} variant="primary" className="text-[10px]">{tag}</Badge>
                 ))}
               </div>
             </div>
@@ -197,15 +283,14 @@ export default function Clients() {
       >
         {selectedClient && (
           <div className="space-y-4">
-            {/* Contact info */}
             <div className="grid grid-cols-3 gap-3">
               <div className="p-3 rounded-xl bg-gray-50 text-center">
                 <Mail size={16} className="mx-auto mb-1 text-gray-400" />
-                <p className="text-xs text-gray-500">{selectedClient.email}</p>
+                <p className="text-xs text-gray-500 truncate">{selectedClient.email}</p>
               </div>
               <div className="p-3 rounded-xl bg-gray-50 text-center">
                 <Phone size={16} className="mx-auto mb-1 text-gray-400" />
-                <p className="text-xs text-gray-500">{selectedClient.phone}</p>
+                <p className="text-xs text-gray-500 truncate">{selectedClient.phone}</p>
               </div>
               <button
                 onClick={() => toast.success('WhatsApp abierto')}
@@ -216,46 +301,22 @@ export default function Clients() {
               </button>
             </div>
 
-            {/* Stats */}
             <div className="grid grid-cols-2 gap-3">
               <div className="p-4 rounded-xl bg-primary-50">
                 <p className="text-xs text-primary-600 font-medium">Total visitas</p>
-                <p className="text-2xl font-bold text-primary-700 font-display">{selectedClient.visits}</p>
+                <p className="text-2xl font-bold text-primary-700 font-display">{selectedClient.visits || 0}</p>
               </div>
               <div className="p-4 rounded-xl bg-green-50">
                 <p className="text-xs text-green-600 font-medium">Última visita</p>
-                <p className="text-2xl font-bold text-green-700 font-display">{selectedClient.lastVisit}</p>
+                <p className="text-2xl font-bold text-green-700 font-display">{selectedClient.lastVisit || 'N/A'}</p>
               </div>
             </div>
 
-            {/* History */}
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 mb-2">Historial</h4>
-              <div className="space-y-2">
-                {clientHistory.map(h => (
-                  <div key={h.id} className="flex items-center gap-3 p-2.5 rounded-xl bg-gray-50">
-                    <div className={`p-1.5 rounded-lg ${
-                      h.type === 'appointment' ? 'bg-primary-100 text-primary-600' : 'bg-green-100 text-green-600'
-                    }`}>
-                      {h.type === 'appointment' ? <Calendar size={14} /> : <ShoppingBag size={14} />}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{h.description}</p>
-                      <p className="text-xs text-gray-500">{h.date}{h.employee && ` · ${h.employee}`}</p>
-                    </div>
-                    {h.amount && <span className="text-sm font-semibold text-gray-700">{h.amount}</span>}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Notes */}
             <div>
               <h4 className="text-sm font-semibold text-gray-900 mb-2">Notas internas</h4>
-              <textarea
-                className="input-field h-20 resize-none"
-                placeholder="Agregar nota privada sobre este cliente..."
-              />
+              <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-xl italic">
+                {selectedClient.notes || 'Sin notas adicionales.'}
+              </p>
             </div>
           </div>
         )}
