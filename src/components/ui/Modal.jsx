@@ -3,9 +3,7 @@ import { useEffect } from 'react';
 
 export default function Modal({ open, onClose, title, children, size = 'md', footer }) {
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden';
-    }
+    if (open) document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, [open]);
 
@@ -27,23 +25,28 @@ export default function Modal({ open, onClose, title, children, size = 'md', foo
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in" 
+      onClick={onClose}
+    >
       <div
-        className={`modal-content ${sizes[size]}`}
+        className={`bg-white rounded-3xl shadow-premium w-full ${sizes[size]} transform transition-all animate-scale-in relative overflow-hidden`}
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-gray-900 font-display">{title}</h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-50">
+          <h2 className="text-xl font-bold text-gray-900 font-display tracking-tight">{title}</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-all duration-200 active:scale-90"
           >
-            <X size={18} />
+            <X size={20} />
           </button>
         </div>
-        <div>{children}</div>
+        <div className="p-6 max-h-[70vh] overflow-y-auto">
+          {children}
+        </div>
         {footer && (
-          <div className="mt-6 pt-4 border-t border-gray-100 flex justify-end gap-3">
+          <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100 flex justify-end gap-3">
             {footer}
           </div>
         )}

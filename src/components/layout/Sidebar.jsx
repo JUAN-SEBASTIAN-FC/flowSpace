@@ -21,80 +21,80 @@ const navigation = [
 
 export default function Sidebar() {
   const { sidebarOpen, setSidebarOpen, business, activeModules } = useApp();
-  const location = useLocation();
   const [businessMenuOpen, setBusinessMenuOpen] = useState(false);
 
   const visibleNav = navigation.filter(item => activeModules.includes(item.id));
 
   return (
     <aside className={`fixed left-0 top-0 h-full bg-white border-r border-gray-100 z-40
-      flex flex-col transition-all duration-300 shadow-sm
+      flex flex-col transition-all duration-300 ease-in-out shadow-premium
       ${sidebarOpen ? 'w-64' : 'w-20'}`}>
 
-      {/* Logo */}
-      <div className="h-16 flex items-center gap-3 px-4 border-b border-gray-100 shrink-0">
-        <div className="w-9 h-9 bg-primary-600 rounded-xl flex items-center justify-center shrink-0">
-          <Store size={20} className="text-white" />
+      {/* Logo Section */}
+      <div className="h-20 flex items-center gap-3 px-6 border-b border-gray-50 shrink-0">
+        <div className="w-10 h-10 bg-primary-600 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-primary-500/30 transition-transform hover:scale-105">
+          <Store size={22} className="text-white" />
         </div>
         {sidebarOpen && (
-          <span className="font-display font-bold text-lg text-gray-900 tracking-tight">
-            FlowSpace
+          <span className="font-display font-bold text-xl text-gray-900 tracking-tight animate-fade-in">
+            Flow<span className="text-primary-600">Space</span>
           </span>
         )}
       </div>
 
-      {/* Business selector */}
+      {/* Business Profile Section */}
       {sidebarOpen && (
-        <div className="px-3 pt-3 pb-2">
+        <div className="px-4 py-6 animate-fade-in">
           <button
             onClick={() => setBusinessMenuOpen(!businessMenuOpen)}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl
-              hover:bg-gray-50 transition-colors text-left"
+            className="w-full flex items-center gap-3 p-3 rounded-2xl
+              bg-gray-50 hover:bg-primary-50 transition-all duration-200 group text-left border border-transparent hover:border-primary-100"
           >
-            <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center shrink-0">
-              <Store size={16} className="text-primary-600" />
+            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-soft group-hover:shadow-premium transition-all">
+              <Store size={18} className="text-primary-600" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">
+              <p className="text-sm font-bold text-gray-900 truncate">
                 {business?.name || 'Mi Negocio'}
               </p>
-              <p className="text-xs text-gray-500">
-                {business?.type || 'Configurar'}
+              <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
+                {business?.type || 'Admin'}
               </p>
             </div>
-            <ChevronDown size={14} className={`text-gray-400 transition-transform ${businessMenuOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown size={14} className={`text-gray-400 transition-transform duration-300 ${businessMenuOpen ? 'rotate-180' : ''}`} />
           </button>
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-4 py-2 space-y-1 overflow-y-auto overflow-x-hidden">
         {visibleNav.map(item => (
           <NavLink
             key={item.id}
             to={item.to}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-               transition-all duration-150 group
+              `flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold
+               transition-all duration-200 group
                ${isActive
-                  ? 'bg-primary-50 text-primary-700'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}`
+                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`
             }
           >
-            <item.icon size={20} className="shrink-0" />
-            {sidebarOpen && <span>{item.label}</span>}
+            <item.icon size={20} className="shrink-0 transition-transform group-hover:scale-110" />
+            {sidebarOpen && <span className="animate-fade-in">{item.label}</span>}
           </NavLink>
         ))}
       </nav>
 
-      {/* Bottom */}
-      <div className="px-3 py-2 border-t border-gray-100">
+      {/* Bottom Control */}
+      <div className="p-4 border-t border-gray-50">
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="w-full flex items-center justify-center p-2 rounded-xl
-            hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+          className="w-full flex items-center justify-center p-3 rounded-2xl
+            bg-gray-50 text-gray-400 hover:bg-gray-100 hover:text-gray-600 
+            transition-all duration-200 active:scale-95"
         >
-          {sidebarOpen ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}
+          {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
         </button>
       </div>
     </aside>

@@ -11,7 +11,6 @@ import { Link } from 'react-router-dom';
 export default function Dashboard() {
   const { business, bills, appointments, inventory, clients } = useApp();
 
-  // --- Real-time calculations ---
   const today = new Date().toISOString().split('T')[0];
   
   const todayBills = bills.filter(b => b.date === today);
@@ -23,18 +22,16 @@ export default function Dashboard() {
   const pendingToday = todayAppointments.filter(a => a.status === 'pending').length;
 
   const lowStockItems = inventory.filter(i => i.stock <= i.minStock);
-  const criticalStockItems = inventory.filter(i => i.stock === 0);
-
   const recentClients = clients.slice(-3).reverse();
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <PageHeader
         title={`Buen día, ${business?.name || 'Style Studio'} 👋`}
         subtitle={`Resumen de hoy — ${new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })}`}
       >
-        <div className="flex gap-2">
-          <Link to="/appointments" className="btn-primary text-sm flex items-center gap-2">
+        <div className="flex gap-3">
+          <Link to="/appointments" className="btn-primary text-sm flex items-center gap-2 shadow-primary-500/20">
             <Plus size={16} /> Nueva cita
           </Link>
           <Link to="/billing" className="btn-secondary text-sm flex items-center gap-2">
@@ -43,12 +40,10 @@ export default function Dashboard() {
         </div>
       </PageHeader>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           title="Ingresos del día"
           value={`$ ${dailyRevenue.toLocaleString()}`}
-          change={0}
           icon={DollarSign}
           color="green"
           subtitle={`${transactionsCount} transacciones`}
@@ -56,7 +51,6 @@ export default function Dashboard() {
         <StatCard
           title="Citas hoy"
           value={todayAppointments.length.toString()}
-          change={0}
           icon={Calendar}
           color="primary"
           subtitle={`${confirmedToday} confirmadas, ${pendingToday} pendientes`}
@@ -64,7 +58,6 @@ export default function Dashboard() {
         <StatCard
           title="Clientes totales"
           value={clients.length.toString()}
-          change={0}
           icon={Users}
           color="blue"
           subtitle="Base de datos activa"
@@ -78,34 +71,34 @@ export default function Dashboard() {
         />
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Appointments */}
-        <div className="card p-5 lg:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold text-gray-900 font-display flex items-center gap-2">
-              <Clock size={18} className="text-primary-500" />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="card p-6 lg:col-span-2 animate-slide-up">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-bold text-gray-900 font-display flex items-center gap-2">
+              <Clock size={20} className="text-primary-500" />
               Próximas citas (Hoy)
             </h3>
-            <Link to="/appointments" className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
+            <Link to="/appointments" className="text-sm text-primary-600 hover:text-primary-700 font-bold flex items-center gap-1 transition-all hover:gap-2">
               Ver agenda <ArrowRight size={14} />
             </Link>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {todayAppointments.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-4">No hay citas programadas para hoy</p>
+              <div className="text-center py-10 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                <p className="text-sm text-gray-500">No hay citas programadas para hoy</p>
+              </div>
             ) : (
               todayAppointments.sort((a, b) => a.time.localeCompare(b.time)).map(apt => {
                 const client = clients.find(c => c.id === apt.clientId);
                 return (
                   <div key={apt.id}
-                    className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors group cursor-pointer"
+                    className="flex items-center gap-4 p-4 rounded-2xl hover:bg-primary-50/50 transition-all duration-200 group cursor-pointer border border-transparent hover:border-primary-100"
                   >
-                    <div className="w-10 h-10 bg-primary-50 rounded-xl flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 bg-white shadow-soft rounded-xl flex items-center justify-center shrink-0 group-hover:shadow-premium transition-all">
                       <span className="text-sm font-bold text-primary-600">{apt.time}</span>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-900">{client?.name || 'Cliente desconocido'}</p>
+                      <p className="text-sm font-bold text-gray-900">{client?.name || 'Cliente desconocido'}</p>
                       <p className="text-xs text-gray-500">{apt.service}</p>
                     </div>
                     <Badge variant={apt.status === 'confirmed' ? 'success' : 'warning'}>
@@ -118,32 +111,29 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Clients */}
-        <div className="card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold text-gray-900 font-display flex items-center gap-2">
-              <Users size={18} className="text-primary-500" />
-              Clientes recientes
+        <div className="card p-6 animate-slide-up" style={{ animationDelay: '100ms' }}>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-bold text-gray-900 font-display flex items-center gap-2">
+              <Users size={20} className="text-primary-500" />
+              Recientes
             </h3>
-            <Link to="/clients" className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
+            <Link to="/clients" className="text-sm text-primary-600 hover:text-primary-700 font-bold flex items-center gap-1 transition-all hover:gap-2">
               Todos <ArrowRight size={14} />
             </Link>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {recentClients.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-4">No hay clientes registrados</p>
+              <p className="text-sm text-gray-500 text-center py-6">No hay clientes registrados</p>
             ) : (
               recentClients.map(client => (
                 <div key={client.id}
-                  className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 transition-all cursor-pointer border border-transparent hover:border-gray-100"
                 >
-                  <div className="w-9 h-9 bg-gray-100 rounded-full flex items-center justify-center shrink-0">
-                    <span className="text-sm font-semibold text-gray-600">
-                      {client.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
-                    </span>
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center shrink-0 text-primary-700 font-bold text-xs shadow-sm">
+                    {client.name.split(' ').map(w => w[0]).join('').slice(0, 2)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900">{client.name}</p>
+                    <p className="text-sm font-bold text-gray-900 truncate">{client.name}</p>
                     <p className="text-xs text-gray-500">{client.lastVisit || 'Sin visitas'} · {client.visits || 0} visitas</p>
                   </div>
                 </div>
@@ -153,33 +143,33 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Bottom Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
-        {/* Inventory Alerts */}
-        <div className="card p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-semibold text-gray-900 font-display flex items-center gap-2">
-              <AlertTriangle size={18} className="text-amber-500" />
-              Alertas de inventario
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="card p-6 animate-slide-up" style={{ animationDelay: '200ms' }}>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-bold text-gray-900 font-display flex items-center gap-2">
+              <AlertTriangle size={20} className="text-amber-500" />
+              Alertas de Inventario
             </h3>
-            <Link to="/inventory" className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">
+            <Link to="/inventory" className="text-sm text-primary-600 hover:text-primary-700 font-bold flex items-center gap-1 transition-all hover:gap-2">
               Gestionar <ArrowRight size={14} />
             </Link>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {lowStockItems.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-4">No hay productos con stock bajo</p>
+              <div className="text-center py-6 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                <p className="text-sm text-gray-500">Todo el stock está en niveles óptimos</p>
+              </div>
             ) : (
               lowStockItems.slice(0, 3).map(item => (
                 <div key={item.id}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-amber-100 bg-amber-50/50"
+                  className="flex items-center gap-4 p-4 rounded-2xl border border-amber-100 bg-amber-50/30 transition-all hover:bg-amber-50 group"
                 >
-                  <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0">
-                    <Package size={18} className="text-amber-600" />
+                  <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shrink-0 shadow-soft group-hover:shadow-premium transition-all">
+                    <Package size={20} className="text-amber-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900">{item.name}</p>
-                    <p className="text-xs text-amber-600 font-medium">
+                    <p className="text-sm font-bold text-gray-900">{item.name}</p>
+                    <p className="text-xs text-amber-600 font-semibold">
                       Stock: {item.stock} / Mín: {item.minStock}
                     </p>
                   </div>
@@ -192,13 +182,12 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Quick Actions */}
-        <div className="card p-5">
-          <h3 className="text-base font-semibold text-gray-900 font-display mb-4 flex items-center gap-2">
-            <TrendingUp size={18} className="text-primary-500" />
+        <div className="card p-6 animate-slide-up" style={{ animationDelay: '300ms' }}>
+          <h3 className="text-lg font-bold text-gray-900 font-display mb-6 flex items-center gap-2">
+            <TrendingUp size={20} className="text-primary-500" />
             Acciones rápidas
           </h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             {[
               { to: '/appointments', icon: Calendar, label: 'Nueva cita', color: 'bg-primary-50 text-primary-600' },
               { to: '/clients', icon: Users, label: 'Agregar cliente', color: 'bg-blue-50 text-blue-600' },
@@ -208,30 +197,27 @@ export default function Dashboard() {
               <Link
                 key={action.label}
                 to={action.to}
-                className="flex flex-col items-center gap-2.5 p-4 rounded-xl border border-gray-100
-                  hover:border-primary-200 hover:bg-primary-50/30 transition-all duration-150 group"
+                className="flex flex-col items-center gap-3 p-5 rounded-2xl border border-gray-100
+                  hover:border-primary-200 hover:bg-primary-50/50 transition-all duration-200 group active:scale-95"
               >
-                <div className={`p-2.5 rounded-xl ${action.color}`}>
-                  <action.icon size={20} />
+                <div className={`p-3 rounded-2xl ${action.color} transition-transform group-hover:scale-110`}>
+                  <action.icon size={22} />
                 </div>
-                <span className="text-sm font-medium text-gray-700 group-hover:text-primary-700">
-                  {action.label}
-                </span>
+                <span className="text-sm font-bold text-gray-700 group-hover:text-primary-700">{action.label}</span>
               </Link>
             ))}
           </div>
 
-          {/* WhatsApp Quick Contact */}
-          <div className="mt-4 p-4 rounded-xl bg-green-50 border border-green-100 flex items-center gap-3">
-            <div className="w-10 h-10 bg-green-500 rounded-xl flex items-center justify-center shrink-0">
-              <MessageCircle size={20} className="text-white" />
+          <div className="mt-6 p-5 rounded-2xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 flex items-center gap-4 transition-all hover:shadow-premium">
+            <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center shrink-0 shadow-lg shadow-green-500/30">
+              <MessageCircle size={24} className="text-white" />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-semibold text-green-800">¿Necesitás ayuda?</p>
-              <p className="text-xs text-green-600">Escribinos por WhatsApp, respondemos al toque</p>
+              <p className="text-sm font-bold text-green-800">Soporte Rápido</p>
+              <p className="text-xs text-green-600">¿Dudas con la plataforma? Escribinos</p>
             </div>
-            <button className="btn-primary text-sm bg-green-600 hover:bg-green-700">
-              Chatear
+            <button className="btn-primary text-xs bg-green-600 hover:bg-green-700 shadow-green-500/20">
+              Chat
             </button>
           </div>
         </div>
