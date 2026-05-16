@@ -6,7 +6,7 @@ import EmptyState from '../../components/ui/EmptyState';
 import { useApp } from '../../context/AppContext';
 import {
   Plus, Search, Filter, ChevronLeft, ChevronRight,
-  Clock, User, Scissors, X, Calendar as CalendarIcon
+  Clock, User, Scissors, X, Calendar as CalendarIcon, Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -27,27 +27,38 @@ const statusLabels = {
 };
 
 export default function Appointments() {
-  const { appointments, clients, addAppointment, updateAppointmentStatus } = useApp();
+  const { appointments, clients, addAppointment, updateAppointmentStatus, deleteAppointment } = useApp();
   const [showModal, setShowModal] = useState(false);
   const [viewMode, setViewMode] = useState('day');
   const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const handlePreviousDay = () => {
+    setSelectedDate(prev => new Date(prev.getTime() - 24*60*60*1000));
+  };
+
+  const handleNextDay = () => {
+    setSelectedDate(prev => new Date(prev.getTime() + 24*60*60*1000));
+  };
 
   // Form state
   const [formData, setFormData] = useState({
     clientId: '',
     service: '',
-    date: '',
+    date: selectedDate.toISOString().split('T')[0],
     time: '',
     employee: '',
     status: 'pending'
   });
 
+  const dateString = selectedDate.toISOString().split('T')[0];
   const filtered = appointments.filter(apt => {
     const matchesStatus = filterStatus === 'all' || apt.status === filterStatus;
+    const matchesDate = apt.date === dateString;
     const client = clients.find(c => c.id === apt.clientId);
     const matchesSearch = !searchTerm || (client && client.name.toLowerCase().includes(searchTerm.toLowerCase()));
-    return matchesStatus && matchesSearch;
+    return matchesStatus && matchesDate && matchesSearch;
   });
 
   const handleSaveAppointment = () => {
@@ -65,6 +76,13 @@ export default function Appointments() {
   const changeStatus = (id, newStatus) => {
     updateAppointmentStatus(id, newStatus);
     toast.success(`Cita actualizada a ${statusLabels[newStatus]}`);
+  };
+
+  const handleDeleteAppointment = (id) => {
+    if (window.confirm('¿Estás seguro de eliminar esta cita?')) {
+      deleteAppointment(id);
+      toast.error('Cita eliminada');
+    }
   };
 
   return (
@@ -122,14 +140,27 @@ export default function Appointments() {
       </div>
 
       <div className="card p-4 mb-4 flex items-center justify-between">
-        <button className="p-2 rounded-xl hover:bg-gray-100 text-gray-400">
+        <button 
+          onClick={handlePreviousDay}
+          className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition-colors"
+        >
           <ChevronLeft size={18} />
         </button>
         <div className="text-center">
-          <h2 className="text-lg font-bold text-gray-900 font-display">Sábado 9 de Mayo, 2026</h2>
+          <h2 className="text-lg font-bold text-gray-900 font-display">
+            {selectedDate.toLocaleDateString('es-AR', { 
+              weekday: 'long', 
+              day: 'numeric', 
+              month: 'long', 
+              year: 'numeric' 
+            })}
+          </h2>
           <p className="text-sm text-gray-500">{filtered.length} citas</p>
         </div>
-        <button className="p-2 rounded-xl hover:bg-gray-100 text-gray-400">
+        <button 
+          onClick={handleNextDay}
+          className="p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition-colors"
+        >
           <ChevronRight size={18} />
         </button>
       </div>
@@ -187,6 +218,13 @@ export default function Appointments() {
                       title="Cancelar"
                     >
                       <X size={14} />
+                    </button>
+                    <button 
+                      onClick={() => handleDeleteAppointment(apt.id)}
+                      className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600" 
+                      title="Eliminar"
+                    >
+                      <Trash2 size={14} />
                     </button>
                   </div>
                 </div>

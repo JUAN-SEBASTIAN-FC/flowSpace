@@ -1,140 +1,193 @@
 import { useState } from 'react';
 import { PageHeader } from '../../components/ui/PageComponents';
 import Badge from '../../components/ui/Badge';
+import Modal from '../../components/ui/Modal';
+import { useApp } from '../../context/AppContext';
 import {
   Bell, Send, Edit, Trash2, Plus, Clock,
-  CalendarCheck, CreditCard, UserCheck, MessageSquare
+  CalendarCheck, CreditCard, UserCheck, MessageSquare, Check, X
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const templates = [
-  { id: 1, name: 'Recordatorio de cita', type: 'appointment', channel: 'WhatsApp', active: true, lastSent: 'Hoy 10:00' },
-  { id: 2, name: 'Recordatorio de pago', type: 'payment', channel: 'WhatsApp', active: true, lastSent: 'Ayer' },
-  { id: 3, name: 'Seguimiento post-visita', type: 'followup', channel: 'WhatsApp', active: false, lastSent: 'Hace 3 días' },
-];
-
-const upcomingReminders = [
-  { id: 1, client: 'Laura Martínez', type: 'appointment', message: 'Cita mañana a las 10:30', time: 'Mañana 9:00' },
-  { id: 2, client: 'Ana López', type: 'payment', message: 'Pago pendiente de $6,500', time: 'Mañana 9:00' },
-  { id: 3, client: 'Carlos Ruiz', type: 'followup', message: '¿Cómo quedó tu coloración?', time: 'Mañana 10:00' },
-];
-
-const templatePreview = (type) => {
-  const pre = type === 'appointment'
-    ? 'Hola [Nombre], te recordamos tu cita de [Servicio] mañana a las [Hora]. ¡Te esperamos!'
-    : type === 'payment'
-    ? 'Hola [Nombre], tenés un pago pendiente de [Monto]. Podés abonarlo por este medio.'
-    : 'Hola [Nombre], pasaron unos días desde tu última visita. ¿Cómo te sentiste con el servicio?';
-  return pre;
-};
-
 export default function Reminders() {
-  const [activeTab, setActiveTab] = useState('templates');
+  const { reminders, addReminder, toggleReminder, deleteReminder } = useApp();
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    date: ''
+  });
+
+  const handleAddReminder = (e) => {
+    e.preventDefault();
+    if (!formData.title || !formData.date) {
+      toast.error('Por favor completa los campos obligatorios');
+      return;
+    }
+
+    addReminder({
+      ...formData,
+      completed: false
+    });
+
+    toast.success('Recordatorio creado');
+    setFormData({ title: '', description: '', date: '' });
+    setShowModal(false);
+  };
+
+  const handleToggle = (id) => {
+    toggleReminder(id);
+    toast.success('Recordatorio actualizado');
+  };
+
+  const handleDelete = (id) => {
+    deleteReminder(id);
+    toast.error('Recordatorio eliminado');
+  };
+
+  const pendingReminders = reminders.filter(r => !r.completed);
+  const completedReminders = reminders.filter(r => r.completed);
 
   return (
     <div>
-      <PageHeader title="Recordatorios" subtitle="Automatizá la comunicación con tus clientes">
-        <button onClick={() => toast.success('Plantilla creada')} className="btn-primary text-sm flex items-center gap-2">
-          <Plus size={16} /> Nueva plantilla
+      <PageHeader title="Recordatorios" subtitle="Mantené el control de tus tareas">
+        <button onClick={() => setShowModal(true)} className="btn-primary text-sm flex items-center gap-2">
+          <Plus size={16} /> Nuevo recordatorio
         </button>
       </PageHeader>
 
-      {/* Tabs */}
-      <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-6 w-fit">
-        {[
-          { id: 'templates', label: 'Plantillas', icon: MessageSquare },
-          { id: 'upcoming', label: 'Próximos envíos', icon: Clock },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all
-              ${activeTab === tab.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-          >
-            <tab.icon size={14} /> {tab.label}
-          </button>
-        ))}
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+        <div className="card p-4">
+          <p className="text-xs text-gray-500">Total</p>
+          <p className="text-lg font-bold text-gray-900">{reminders.length}</p>
+        </div>
+        <div className="card p-4">
+          <p className="text-xs text-gray-500">Pendientes</p>
+          <p className="text-lg font-bold text-amber-600">{pendingReminders.length}</p>
+        </div>
+        <div className="card p-4">
+          <p className="text-xs text-gray-500">Completadas</p>
+          <p className="text-lg font-bold text-green-600">{completedReminders.length}</p>
+        </div>
       </div>
 
-      {activeTab === 'templates' ? (
-        <div className="space-y-4">
-          {templates.map(tpl => (
-            <div key={tpl.id} className="card p-5">
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2 rounded-xl ${
-                    tpl.type === 'appointment' ? 'bg-primary-100 text-primary-600' :
-                    tpl.type === 'payment' ? 'bg-amber-100 text-amber-600' :
-                    'bg-green-100 text-green-600'
-                  }`}>
-                    {tpl.type === 'appointment' ? <CalendarCheck size={18} /> :
-                     tpl.type === 'payment' ? <CreditCard size={18} /> :
-                     <UserCheck size={18} />}
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-900">{tpl.name}</h4>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant={tpl.active ? 'success' : 'neutral'}>
-                        {tpl.active ? 'Activo' : 'Inactivo'}
-                      </Badge>
-                      <Badge variant="info">{tpl.channel}</Badge>
-                      <span className="text-xs text-gray-400">· Último envío: {tpl.lastSent}</span>
+      {/* Reminders List */}
+      <div className="space-y-3">
+        {pendingReminders.length === 0 && completedReminders.length === 0 ? (
+          <div className="card p-8 text-center">
+            <Bell size={32} className="text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500">No hay recordatorios. ¡Crea uno nuevo!</p>
+          </div>
+        ) : (
+          <>
+            {pendingReminders.length > 0 && (
+              <>
+                <h3 className="text-sm font-semibold text-gray-700 mt-6 mb-3">Pendientes ({pendingReminders.length})</h3>
+                {pendingReminders.map(reminder => (
+                  <div key={reminder.id} className="card p-4 flex items-center gap-4 hover:bg-gray-50/50 transition-colors">
+                    <button 
+                      onClick={() => handleToggle(reminder.id)}
+                      className="p-2 rounded-lg hover:bg-green-50 text-gray-300 hover:text-green-600 transition-colors shrink-0"
+                    >
+                      <Check size={18} />
+                    </button>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-900">{reminder.title}</p>
+                      {reminder.description && (
+                        <p className="text-xs text-gray-500">{reminder.description}</p>
+                      )}
+                      <div className="flex items-center gap-2 mt-2">
+                        <Clock size={12} className="text-gray-400" />
+                        <span className="text-xs text-gray-400">{reminder.date}</span>
+                      </div>
                     </div>
+                    <button 
+                      onClick={() => handleDelete(reminder.id)}
+                      className="p-2 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-600 transition-colors shrink-0"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => toast.success('Envío manual activado')}
-                    className="p-2 rounded-lg hover:bg-green-50 text-gray-400 hover:text-green-600"
-                    title="Enviar ahora"
-                  >
-                    <Send size={14} />
-                  </button>
-                  <button className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-primary-600" title="Editar">
-                    <Edit size={14} />
-                  </button>
-                  <button className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600" title="Eliminar">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
-              {/* Template preview */}
-              <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
-                <p className="text-sm text-gray-600 italic">"{templatePreview(tpl.type)}"</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {upcomingReminders.map(rem => (
-            <div key={rem.id} className="card p-4 flex items-center gap-4">
-              <div className={`p-2.5 rounded-xl ${
-                rem.type === 'appointment' ? 'bg-primary-100 text-primary-600' :
-                rem.type === 'payment' ? 'bg-amber-100 text-amber-600' :
-                'bg-green-100 text-green-600'
-              }`}>
-                <Bell size={18} />
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">{rem.client}</p>
-                <p className="text-xs text-gray-500">{rem.message}</p>
-              </div>
-              <div className="text-right">
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <Clock size={12} /> {rem.time}
-                </div>
-                <button
-                  onClick={() => toast.success('Recordatorio enviado manualmente')}
-                  className="btn-primary text-xs mt-2 py-1 px-3"
-                >
-                  <Send size={12} className="inline mr-1" /> Enviar ahora
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                ))}
+              </>
+            )}
+
+            {completedReminders.length > 0 && (
+              <>
+                <h3 className="text-sm font-semibold text-gray-700 mt-6 mb-3">Completadas ({completedReminders.length})</h3>
+                {completedReminders.map(reminder => (
+                  <div key={reminder.id} className="card p-4 flex items-center gap-4 opacity-60 hover:opacity-100 transition-opacity">
+                    <button 
+                      onClick={() => handleToggle(reminder.id)}
+                      className="p-2 rounded-lg bg-green-50 text-green-600 shrink-0"
+                    >
+                      <Check size={18} />
+                    </button>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-gray-500 line-through">{reminder.title}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Clock size={12} className="text-gray-400" />
+                        <span className="text-xs text-gray-400">{reminder.date}</span>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => handleDelete(reminder.id)}
+                      className="p-2 rounded-lg hover:bg-red-50 text-gray-300 hover:text-red-600 transition-colors shrink-0"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
+                ))}
+              </>
+            )}
+          </>
+        )}
+      </div>
+
+      {/* Add Reminder Modal */}
+      <Modal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        title="Nuevo recordatorio"
+        footer={
+          <>
+            <button onClick={() => setShowModal(false)} className="btn-secondary">Cancelar</button>
+            <button onClick={handleAddReminder} className="btn-primary">Guardar</button>
+          </>
+        }
+      >
+        <form onSubmit={handleAddReminder} className="space-y-4">
+          <div>
+            <label className="input-label">Título *</label>
+            <input 
+              className="input-field" 
+              placeholder="Ej: Pedir stock de tinte"
+              value={formData.title}
+              onChange={e => setFormData({...formData, title: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="input-label">Descripción</label>
+            <textarea 
+              className="input-field" 
+              placeholder="Detalles adicionales..."
+              rows={3}
+              value={formData.description}
+              onChange={e => setFormData({...formData, description: e.target.value})}
+            />
+          </div>
+          <div>
+            <label className="input-label">Fecha *</label>
+            <input 
+              type="date"
+              className="input-field"
+              value={formData.date}
+              onChange={e => setFormData({...formData, date: e.target.value})}
+            />
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

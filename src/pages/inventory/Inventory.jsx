@@ -10,11 +10,14 @@ import {
 import toast from 'react-hot-toast';
 
 export default function Inventory() {
-  const { inventory, addInventoryItem, updateStock, setInventory } = useApp();
+  const { inventory, addInventoryItem, updateStock, deleteInventoryItem, updateInventoryItem } = useApp();
   const [showModal, setShowModal] = useState(false);
+  const [showStockModal, setShowStockModal] = useState(false);
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [newStock, setNewStock] = useState('');
 
   // Form state
   const [formData, setFormData] = useState({
@@ -65,18 +68,24 @@ export default function Inventory() {
   };
 
   const handleUpdateStock = (id) => {
-    const newStock = prompt('Ingrese la nueva cantidad de stock:');
-    if (newStock !== null && !isNaN(parseInt(newStock))) {
-      updateStock(id, parseInt(newStock));
-      toast.success('Stock actualizado');
+    setSelectedProductId(id);
+    setNewStock('');
+    setShowStockModal(true);
+  };
+
+  const confirmUpdateStock = () => {
+    if (!newStock || isNaN(parseInt(newStock))) {
+      toast.error('Ingresa una cantidad válida');
+      return;
     }
+    updateStock(selectedProductId, parseInt(newStock));
+    toast.success('Stock actualizado');
+    setShowStockModal(false);
   };
 
   const handleDeleteProduct = (id) => {
-    if (window.confirm('¿Estás seguro de eliminar este producto?')) {
-      setInventory(prev => prev.filter(p => p.id !== id));
-      toast.error('Producto eliminado');
-    }
+    deleteInventoryItem(id);
+    toast.error('Producto eliminado');
   };
 
   return (
@@ -297,6 +306,31 @@ export default function Inventory() {
             </div>
           </div>
         </form>
+      </Modal>
+
+      {/* Update Stock Modal */}
+      <Modal
+        open={showStockModal}
+        onClose={() => setShowStockModal(false)}
+        title="Actualizar Stock"
+        footer={
+          <>
+            <button onClick={() => setShowStockModal(false)} className="btn-secondary">Cancelar</button>
+            <button onClick={confirmUpdateStock} className="btn-primary">Actualizar</button>
+          </>
+        }
+      >
+        <div className="space-y-4">
+          <label className="input-label">Nueva cantidad de stock</label>
+          <input 
+            type="number" 
+            className="input-field" 
+            placeholder="0"
+            value={newStock}
+            onChange={e => setNewStock(e.target.value)}
+            autoFocus
+          />
+        </div>
       </Modal>
     </div>
   );

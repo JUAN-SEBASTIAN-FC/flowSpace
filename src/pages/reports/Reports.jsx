@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { PageHeader } from '../../components/ui/PageComponents';
 import Badge from '../../components/ui/Badge';
 import { useApp } from '../../context/AppContext';
+import toast from 'react-hot-toast';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';

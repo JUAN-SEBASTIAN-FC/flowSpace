@@ -15,7 +15,28 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (step === 1) { setStep(2); return; }
+    
+    if (step === 1) {
+      if (!form.name.trim()) {
+        toast.error('El nombre es obligatorio');
+        return;
+      }
+      if (!form.email.includes('@')) {
+        toast.error('Email inválido');
+        return;
+      }
+      if (form.password.length < 8) {
+        toast.error('La contraseña debe tener al menos 8 caracteres');
+        return;
+      }
+      if (form.password !== form.confirmPassword) {
+        toast.error('Las contraseñas no coinciden');
+        return;
+      }
+      setStep(2);
+      return;
+    }
+    
     setLoading(true);
     await new Promise(r => setTimeout(r, 1000));
     toast.success('¡Cuenta creada! Ahora configurá tu negocio.');

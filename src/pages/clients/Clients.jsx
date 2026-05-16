@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { PageHeader } from '../../components/ui/PageComponents';
 import Badge from '../../components/ui/Badge';
 import Modal from '../../components/ui/Modal';
+import EmptyState from '../../components/ui/EmptyState';
 import { useApp } from '../../context/AppContext';
 import {
   Plus, Search, Users, Mail, Phone, Tag,
-  Calendar, ShoppingBag, FileText, MessageCircle, X
+  Calendar, ShoppingBag, FileText, MessageCircle, X, Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Clients() {
-  const { clients, addClient } = useApp();
+  const { clients, addClient, deleteClient } = useApp();
   const [showModal, setShowModal] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [viewMode, setViewMode] = useState('grid');
@@ -52,6 +53,15 @@ export default function Clients() {
     toast.success('Cliente agregado exitosamente');
     setFormData({ name: '', email: '', phone: '', notes: '', tags: '' });
     setShowModal(false);
+  };
+
+  const handleDeleteClient = (id) => {
+    if (window.confirm('¿Estás seguro de eliminar este cliente?')) {
+      deleteClient(id);
+      toast.error('Cliente eliminado');
+      setShowModal(false);
+      setSelectedClient(null);
+    }
   };
 
   return (
@@ -305,6 +315,24 @@ export default function Clients() {
               </div>
             </div>
 
+
+            <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <button 
+                onClick={() => {
+                  setShowModal(false);
+                  setSelectedClient(null);
+                }}
+                className="btn-secondary flex-1"
+              >
+                Cerrar
+              </button>
+              <button 
+                onClick={() => handleDeleteClient(selectedClient.id)}
+                className="btn-danger flex items-center gap-2 justify-center"
+              >
+                <Trash2 size={14} /> Eliminar
+              </button>
+            </div>
             <div className="p-5 rounded-2xl bg-gray-50 border border-gray-100">
               <h4 className="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
                 <FileText size={16} className="text-gray-400" />
