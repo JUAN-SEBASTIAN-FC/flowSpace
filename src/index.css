@@ -37,6 +37,11 @@
     @apply px-4 py-2 rounded-xl bg-white text-gray-700 border border-gray-200 font-semibold 
            transition-all duration-200 hover:bg-gray-50 active:scale-95 flex items-center justify-center gap-2;
   }
+  .btn-danger {
+    @apply px-4 py-2 rounded-xl bg-red-500 text-white font-semibold 
+           transition-all duration-200 shadow-soft hover:shadow-premium hover:shadow-red-500/20
+           hover:bg-red-600 active:scale-95 flex items-center justify-center gap-2;
+  }
 
   /* Premium Card Base */
   .card {
@@ -57,10 +62,15 @@
 
   /* Table Styling */
   .table-th {
-    @apply px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100;
+    @apply px-4 py-3 text-left text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100 bg-gray-50/50;
   }
   .table-td {
-    @apply px-4 py-4 text-sm text-gray-600 border-b border-gray-50;
+    @apply px-4 py-4 text-sm text-gray-600 border-b border-gray-50 transition-colors group-hover:bg-gray-50/50;
+  }
+
+  /* Skeletons */
+  .skeleton {
+    @apply bg-gray-200 rounded-lg animate-pulse-soft;
   }
 }
 

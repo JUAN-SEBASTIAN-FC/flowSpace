@@ -67,21 +67,17 @@ export default function Sidebar() {
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-2 space-y-1 overflow-y-auto overflow-x-hidden">
+      <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto overflow-x-hidden">
         {visibleNav.map(item => (
           <NavLink
             key={item.id}
             to={item.to}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-semibold
-               transition-all duration-200 group
-               ${isActive
-                  ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/30'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`
+              isActive ? 'sidebar-link-active group' : 'sidebar-link group'
             }
           >
-            <item.icon size={20} className="shrink-0 transition-transform group-hover:scale-110" />
-            {sidebarOpen && <span className="animate-fade-in">{item.label}</span>}
+            <item.icon size={20} className={`shrink-0 transition-transform duration-300 ${sidebarOpen ? '' : 'mx-auto'} group-hover:scale-110`} />
+            {sidebarOpen && <span className="animate-[fadeIn_0.3s_ease-out] whitespace-nowrap">{item.label}</span>}
           </NavLink>
         ))}
       </nav>

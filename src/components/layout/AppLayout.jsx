@@ -7,7 +7,7 @@ export default function AppLayout() {
   const { sidebarOpen } = useApp();
 
   return (
-    <div className="min-h-screen bg-brand-bg flex overflow-hidden">
+    <div className="h-screen w-full bg-brand-bg flex overflow-hidden">
       <Sidebar />
       <div className={`flex-1 flex flex-col transition-all duration-300 ease-in-out ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
         <Header />

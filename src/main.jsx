@@ -14,14 +14,28 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Toaster
           position="top-right"
           toastOptions={{
-            duration: 3000,
+            duration: 4000,
             style: {
               background: '#fff',
-              color: '#1f2937',
-              boxShadow: '0 4px 16px -4px rgba(0,0,0,0.1)',
-              borderRadius: '12px',
+              color: '#0f172a',
+              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+              borderRadius: '16px',
               fontSize: '14px',
-              padding: '12px 16px',
+              fontWeight: '500',
+              padding: '16px 20px',
+              border: '1px solid #f1f5f9'
+            },
+            success: {
+              iconTheme: {
+                primary: '#10b981',
+                secondary: '#fff',
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: '#fff',
+              },
             },
           }}
         />
